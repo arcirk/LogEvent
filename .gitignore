@@ -1,0 +1,29 @@
+data/
+.idea/
+Thumbs.db
+.DS_Store
+
+# Applications
+*.app
+*.exe
+*.war
+*.so
+*.dll
+
+# Large media files
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv
+
+cmake-build-debug/
+cmake-build-release/
+
+**/build-*
+
+**/.idea/
+
+*.user
+*.autosave
