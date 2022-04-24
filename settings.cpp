@@ -116,6 +116,9 @@ void Settings::parse_command_line(const QString& cmd, QString& result){
         result = "";
 }
 
+
+#endif
+
 void Settings::getSettings()
 {
     QFile file("settings.json");
@@ -145,8 +148,6 @@ void Settings::getSettings()
     file.close();
 }
 
-#endif
-
 Settings::Settings()//QObject *parent)
    // : QObject{parent}
 {
@@ -160,12 +161,13 @@ void Settings::get_server_info(const QString& dirsrvinfo)
 
     if(!dirsrvinfo.isEmpty()){
         v8srvinfo = dirsrvinfo;
-    }
+    }else{
 #ifdef _WINDOWS
 
     parse_command_line(get_service_command_line(), v8srvinfo);
 
 #endif
+    }
 
     if(v8srvinfo.isEmpty())
         return;

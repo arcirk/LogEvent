@@ -36,6 +36,13 @@ public:
 
     explicit Settings();//QObject *parent = nullptr);
 
+    void getSettings();
+    QString v8srvinfo_catalog();
+
+    void setV8Root(const QString& val){
+       srv_v8info = val.toStdString();
+    }
+
 #ifdef _WINDOWS
     void get_server_info(const QString& dirsrvinfo = "");
 #else
@@ -51,12 +58,7 @@ public:
     void parse_command_line(const QString& cmd, QString& result);
 #endif
 
-    void getSettings();
-    QString v8srvinfo_catalog();
 
-    void setV8Root(const QString& val){
-       srv_v8info = val.toStdString();
-    }
 
 private:
     std::string srv_v8info;

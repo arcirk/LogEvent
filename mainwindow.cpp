@@ -15,7 +15,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     //options = Settings();//this);
     //options->setServerLogFolder("/home/arcady/src/Log/LogEvent/data/srvinfo/reg_1541");
-    options.get_server_info();
+#ifdef _WINDOWS
+    options.get_server_info("C:/Program Files/1cv8/srvinfo/reg_1541");
+#else
+    options.get_server_info("/home/arcady/src/Log/LogEvent/data/srvinfo/reg_1541");
+#endif
 
 //    logDbPateh = "";
 //    loadAppSettings();
