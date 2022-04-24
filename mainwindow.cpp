@@ -13,9 +13,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    options = new Settings(this);
-    options->setServerLogFolder("/home/arcady/src/Log/LogEvent/data/srvinfo/reg_1541");
-    options->get_server_info();
+    //options = Settings();//this);
+    //options->setServerLogFolder("/home/arcady/src/Log/LogEvent/data/srvinfo/reg_1541");
+    options.get_server_info();
 
 //    logDbPateh = "";
 //    loadAppSettings();
@@ -96,30 +96,30 @@ void MainWindow::on_mnuOptions_triggered()
 void MainWindow::loadAppSettings()
 {
 
-    QFile file("settings.json");
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        return;
-    }
+//    QFile file("settings.json");
+//    if (!file.open(QIODevice::ReadOnly))
+//    {
+//        return;
+//    }
 
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    if(!doc.isNull()){
-        QJsonObject obj = doc.object();
-        auto _logDbPateh = obj.find("logDbPateh");
-        if(_logDbPateh->isString()){
-            logDbPateh = _logDbPateh->toString();
-        }
-        auto _mColVisible = obj.find("ColumnVisible");
-        if(_mColVisible->isArray()){
-            QJsonArray arr = _mColVisible->toArray();
-            for (auto iter : arr) {
-                QJsonObject item = iter.toObject();
-                bool val = item["value"].toBool();
-                selectedCols[item["name"].toString()] = val;
-            }
+//    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+//    if(!doc.isNull()){
+//        QJsonObject obj = doc.object();
+//        auto _logDbPateh = obj.find("logDbPateh");
+//        if(_logDbPateh->isString()){
+//            logDbPateh = _logDbPateh->toString();
+//        }
+//        auto _mColVisible = obj.find("ColumnVisible");
+//        if(_mColVisible->isArray()){
+//            QJsonArray arr = _mColVisible->toArray();
+//            for (auto iter : arr) {
+//                QJsonObject item = iter.toObject();
+//                bool val = item["value"].toBool();
+//                selectedCols[item["name"].toString()] = val;
+//            }
 
-        }
-    }
-    file.close();
+//        }
+//    }
+//    file.close();
 }
 

@@ -5,32 +5,65 @@
 #include <QMap>
 #include "infobases.h"
 
-#ifdef WINDOWS
-#include <QAxObject>
-#endif
+const QStringList ColumnNames ={"rowID",
+                                "severity",
+                                "date",
+                                "connectID",
+                                "session",
+                                "transactionStatus",
+                                "transactionDate",
+                                "transactionID",
+                                "userCode",
+                                "computerCode",
+                                "appCode",
+                                "eventCode",
+                                "comment",
+                                "metadataCodes",
+                                "sessionDataSplitCode",
+                                "dataType",
+                                "data",
+                                "dataPresentation",
+                                "workServerCode",
+                                "primaryPortCode",
+                                "secondaryPortCode"};
 
-class Settings : public QObject
+class Settings // : public QObject
 {
-    Q_OBJECT
+    //Q_OBJECT
+
 public:
-    explicit Settings(QObject *parent = nullptr);
 
-    QString databasePath;
-    QMap<int, bool> columnVisible;
 
-    void setServerLogFolder(const QString& path);
+    explicit Settings();//QObject *parent = nullptr);
 
-    void get_server_info();
-
+#ifdef _WINDOWS
+    void get_server_info(const QString& dirsrvinfo = "");
+#else
+    void get_server_info(const QString& dirsrvinfo);
+#endif
     static QStringList ParseEventLogString(const QString& text);
     static double CountSubstringInString(const QString& str, const QString& substr);
 
+    //QString v8srvinfo;
+
+#ifdef _WINDOWS
+    static QString get_service_command_line();
+    void parse_command_line(const QString& cmd, QString& result);
+#endif
+
+    void getSettings();
+    QString v8srvinfo_catalog();
+
+    void setV8Root(const QString& val){
+       srv_v8info = val.toStdString();
+    }
 
 private:
-    QString serverLogFolder;
+    std::string srv_v8info;
     QMap<QString, Infobases*> info_bases;
+    QMap<QString,bool> selectedCols;
 
-signals:
+//signals:
 
 };
 

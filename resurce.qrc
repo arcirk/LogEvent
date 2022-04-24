@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>img/Обновить/tbglacti_150.png</file>
-        <file>img/Обновить/tbglacti_100.png</file>
+        <file>img/tbglacti_100.png</file>
     </qresource>
 </RCC>

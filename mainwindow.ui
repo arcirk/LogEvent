@@ -28,7 +28,7 @@
             </property>
             <property name="icon">
              <iconset resource="resurce.qrc">
-              <normaloff>:/img/Обновить/tbglacti_100.png</normaloff>:/img/Обновить/tbglacti_100.png</iconset>
+              <normaloff>:/img/tbglacti_100.png</normaloff>:/img/tbglacti_100.png</iconset>
             </property>
            </widget>
           </item>
@@ -111,7 +111,7 @@
      <x>0</x>
      <y>0</y>
      <width>698</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">

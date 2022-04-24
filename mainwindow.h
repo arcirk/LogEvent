@@ -21,28 +21,6 @@ enum bSettings{
     AppName
 };
 
-const QStringList ColumnNames ={"rowID",
-                                "severity",
-                                "date",
-                                "connectID",
-                                "session",
-                                "transactionStatus",
-                                "transactionDate",
-                                "transactionID",
-                                "userCode",
-                                "computerCode",
-                                "appCode",
-                                "eventCode",
-                                "comment",
-                                "metadataCodes",
-                                "sessionDataSplitCode",
-                                "dataType",
-                                "data",
-                                "dataPresentation",
-                                "workServerCode",
-                                "primaryPortCode",
-                                "secondaryPortCode"};
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -71,8 +49,7 @@ private:
     QString logDbPateh;
     QSqlDatabase dbLog;
     QSqlQueryModel * model;
-    QMap<QString,bool> selectedCols;
-    Settings * options;
+    Settings  options;
 
 };
 #endif // MAINWINDOW_H

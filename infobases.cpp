@@ -45,3 +45,13 @@ void Infobases::setSizeEventLog(int size)
 {
     _SizeEventLog = size;
 }
+
+QString Infobases::PathLogEvent()
+{
+    return _PathLogEvent;
+}
+
+void Infobases::setPathLogEvent(const QString &pth)
+{
+    _PathLogEvent = pth;
+}

@@ -17,12 +17,14 @@ public:
     void setDescription(const QString& desc);
     int SizeEventLog();
     void setSizeEventLog(int size);
-
+    QString PathLogEvent();
+    void setPathLogEvent(const QString& pth);
 private:
     QString _Name;
     QString _GUID;
     QString _Description;
     int _SizeEventLog;
+    QString _PathLogEvent;
 
 signals:
 

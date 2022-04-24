@@ -1,5 +1,6 @@
 QT       += core gui
 QT += sql
+QT += axcontainer
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -33,3 +34,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resurce.qrc
+
+windows:DEFINES += _WINDOWS
