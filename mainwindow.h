@@ -13,13 +13,9 @@ QT_END_NAMESPACE
 
 struct standart_period{
     qint64 startDate = 0;
-    qint64 endtDate = 0;
+    qint64 endDate = 0;
 };
 
-//enum bSettings{
-//    LogEventPath = 0,
-//    AppName
-//};
 
 class MainWindow : public QMainWindow
 {
@@ -42,19 +38,17 @@ private slots:
 
     void on_mnuOptions_triggered();
 
-    void loadAppSettings();
-    //void saveAppSettings();
-
     void on_mnuDbConnect_triggered();
 
     void on_mnuOpenSrvinfo_triggered();
 
     void on_mnuDbClose_triggered();
 
+    void on_mnuColumnVisuble_triggered();
+
 private:
     Ui::MainWindow *ui;
     standart_period period;
-    //QString logDbPateh;
     QSqlDatabase dbLog;
     QSqlQueryModel * model;
     Settings  options;

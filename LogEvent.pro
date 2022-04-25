@@ -12,6 +12,7 @@ CONFIG += c++11
 
 SOURCES += \
     dialogoptions.cpp \
+    dialogselectcolumn.cpp \
     dialogselectinfobase.cpp \
     infobases.cpp \
     main.cpp \
@@ -20,6 +21,7 @@ SOURCES += \
 
 HEADERS += \
     dialogoptions.h \
+    dialogselectcolumn.h \
     dialogselectinfobase.h \
     infobases.h \
     mainwindow.h \
@@ -27,6 +29,7 @@ HEADERS += \
 
 FORMS += \
     dialogoptions.ui \
+    dialogselectcolumn.ui \
     dialogselectinfobase.ui \
     mainwindow.ui
 

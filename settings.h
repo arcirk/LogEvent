@@ -38,11 +38,12 @@ public:
     explicit Settings(QObject *parent = nullptr);
 
     void getSettings();
+    void saveSettings();
+
     QString v8srvinfo_catalog() const;
     void set_v8srvinfo_catalog(const QString& val);
 
     QString v8srvinfo_logevent_catalog();
-
 
 #ifdef _WINDOWS
     void get_server_info(const QString& dirsrvinfo = "");
@@ -60,6 +61,7 @@ public:
 #endif
 
     QMap<QString, Infobases*> get_infobases();
+    QMap<QString,bool>& get_selected_cols();
 
 private:
     QString _root_path;
@@ -67,7 +69,7 @@ private:
     QMap<QString, Infobases*> info_bases;
     QMap<QString,bool> selectedCols;
 
-    void v8srvinfo_logevent_catalog(const QString& val);
+    void set_v8srvinfo_logevent_catalog(const QString& val);
 //signals:
 
 };

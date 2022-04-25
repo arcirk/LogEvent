@@ -116,19 +116,25 @@ void Settings::parse_command_line(const QString& cmd, QString& result, QString& 
     }else
         result = "";
 }
+#endif
 
 QMap<QString, Infobases *> Settings::get_infobases()
 {
     return info_bases;
 }
 
-void Settings::v8srvinfo_logevent_catalog(const QString &val)
+QMap<QString, bool>& Settings::get_selected_cols()
+{
+    return selectedCols;
+}
+
+void Settings::set_v8srvinfo_logevent_catalog(const QString &val)
 {
     _v8srvinfo = val;
 }
 
 
-#endif
+
 
 void Settings::getSettings()
 {
@@ -136,6 +142,12 @@ void Settings::getSettings()
     if (!file.open(QIODevice::ReadOnly))
     {
         return;
+    }
+
+    selectedCols.clear();
+
+    for(auto itr : ColumnNames){
+        selectedCols.insert(itr, true);
     }
 
     QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
@@ -159,10 +171,38 @@ void Settings::getSettings()
     file.close();
 }
 
+void Settings::saveSettings()
+{
+    QJsonDocument m_doc{};
+    QJsonObject obj = QJsonObject();
+    obj.insert("dirsrvinfo", _root_path);
+    QJsonArray arr = QJsonArray();
+
+    for (auto itr = selectedCols.begin(); itr != selectedCols.end(); ++itr) {
+        QJsonObject item = QJsonObject();
+        item.insert(itr.key(), itr.value());
+        arr.append(item);
+    }
+
+    obj.insert("ColumnVisible", arr);
+
+    m_doc.setObject(obj);
+
+    QString fileName = "settings.json";
+
+    QFile jsonFile(fileName);
+    if (!jsonFile.open(QIODevice::WriteOnly))
+    {
+        return;
+    }
+    jsonFile.write(QJsonDocument(m_doc).toJson(QJsonDocument::Indented));
+    jsonFile.close();
+}
+
 Settings::Settings(QObject *parent)
     : QObject{parent}
 {
-    getSettings();
+    //getSettings();
 }
 
 void Settings::get_server_info(const QString& dirsrvinfo)
@@ -254,7 +294,7 @@ void Settings::get_server_info(const QString& dirsrvinfo)
     }
 
     set_v8srvinfo_catalog(_root);
-    v8srvinfo_logevent_catalog(folder.path());
+    set_v8srvinfo_logevent_catalog(folder.path());
  }
 
 QStringList Settings::ParseEventLogString(const QString &text)

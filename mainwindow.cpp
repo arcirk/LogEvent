@@ -11,6 +11,7 @@
 #include <QSqlQuery>
 #include <QSqlTableModel>
 #include <QFileDialog>
+#include "dialogselectcolumn.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,18 +19,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    //options = Settings();//this);
-    //options->setServerLogFolder("/home/arcady/src/Log/LogEvent/data/srvinfo/reg_1541");
-#ifdef _WINDOWS
-    //options.get_server_info("C:/Program Files/1cv8/srvinfo");
-    options.get_server_info();
-#else
-    options.get_server_info("/home/arcady/src/Log/LogEvent/data/srvinfo/reg_1541");
-#endif
+    options.getSettings();
 
-    qDebug() << options.v8srvinfo_catalog();
-
-    this->setWindowTitle(options.v8srvinfo_catalog());
+    if(!options.v8srvinfo_catalog().isEmpty()){
+        options.get_server_info(options.v8srvinfo_catalog());
+        this->setWindowTitle("LogEvent:" + options.v8srvinfo_catalog());
+    }
 
     currentIB = nullptr;
 
@@ -111,9 +106,8 @@ void MainWindow::connect_database()
 
 void MainWindow::on_dtEndDate_dateTimeChanged(const QDateTime &dateTime)
 {
-   period.endtDate = dateTime.toSecsSinceEpoch() + dateTime.offsetFromUtc();
-   //qDebug() << dateTime;
-   qDebug() << period.endtDate;
+   period.endDate = dateTime.toSecsSinceEpoch() + dateTime.offsetFromUtc();
+   qDebug() << period.endDate;
 }
 
 
@@ -141,7 +135,7 @@ void MainWindow::on_toolBtnUpdate_clicked()
         return;
     }
 
-    if(period.startDate > period.endtDate){
+    if(period.startDate > period.endDate){
         QMessageBox::critical(this, "Ошибка", "Дата начала не может быть больше даты окончания!");
         return;
     }
@@ -184,7 +178,7 @@ void MainWindow::on_toolBtnUpdate_clicked()
     m_model->setTable("EventLog");
     //(62135578800 + 1647878264) * 10000
     qint64 startDate = ((qint64)62135578800 + period.startDate) * (qint64)10000;
-    qint64 endDate = ((qint64)62135578800 + period.endtDate) * (qint64)10000;
+    qint64 endDate = ((qint64)62135578800 + period.endDate) * (qint64)10000;
 
     m_model->setFilter(QString("(date >= %1 AND date <= %2)").arg(QString::number(startDate), QString::number(endDate)));
     qDebug() << period.startDate;
@@ -203,38 +197,8 @@ void MainWindow::on_mnuOptions_triggered()
     dlg->setModal(true);
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){
-        loadAppSettings();
+        //loadAppSettings();
     }
-}
-
-void MainWindow::loadAppSettings()
-{
-
-//    QFile file("settings.json");
-//    if (!file.open(QIODevice::ReadOnly))
-//    {
-//        return;
-//    }
-
-//    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-//    if(!doc.isNull()){
-//        QJsonObject obj = doc.object();
-//        auto _logDbPateh = obj.find("logDbPateh");
-//        if(_logDbPateh->isString()){
-//            logDbPateh = _logDbPateh->toString();
-//        }
-//        auto _mColVisible = obj.find("ColumnVisible");
-//        if(_mColVisible->isArray()){
-//            QJsonArray arr = _mColVisible->toArray();
-//            for (auto iter : arr) {
-//                QJsonObject item = iter.toObject();
-//                bool val = item["value"].toBool();
-//                selectedCols[item["name"].toString()] = val;
-//            }
-
-//        }
-//    }
-//    file.close();
 }
 
 
@@ -251,7 +215,7 @@ void MainWindow::on_mnuDbConnect_triggered()
     if(dlg->result() == QDialog::Accepted){
         qDebug() << dlg->selectedItem;
         currentIB = options.get_infobases()[dlg->selectedItem];
-        this->setWindowTitle(options.v8srvinfo_catalog() +  " (" + dlg->selectedItem + ")");
+        this->setWindowTitle("LogEvent:" + options.v8srvinfo_catalog() +  " (" + dlg->selectedItem + ")");
         connect_database();
     }
 }
@@ -270,7 +234,8 @@ void MainWindow::on_mnuOpenSrvinfo_triggered()
         ui->tableView->setModel(nullptr);
 
         options.get_server_info(dir);
-        this->setWindowTitle(options.v8srvinfo_catalog());
+        this->setWindowTitle("LogEvent:" + options.v8srvinfo_catalog());
+        options.saveSettings();
     }
 }
 
@@ -281,5 +246,17 @@ void MainWindow::on_mnuDbClose_triggered()
         dbLog.close();
         this->setWindowTitle(options.v8srvinfo_catalog());
     }
+}
+
+
+void MainWindow::on_mnuColumnVisuble_triggered()
+{
+    auto dlg = new DialogSelectColumn(this, options.get_selected_cols());
+    dlg->setModal(true);
+    dlg->exec();
+    if(dlg->result() == QDialog::Accepted){
+
+    }
+
 }
 

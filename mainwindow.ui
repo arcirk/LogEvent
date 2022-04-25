@@ -111,7 +111,7 @@
      <x>0</x>
      <y>0</y>
      <width>698</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -130,6 +130,8 @@
      <string>&amp;Сервис</string>
     </property>
     <addaction name="mnuOptions"/>
+    <addaction name="separator"/>
+    <addaction name="mnuColumnVisuble"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
@@ -164,6 +166,11 @@
   <action name="mnuOpenSrvinfo">
    <property name="text">
     <string>Открыть каталог srvinfo</string>
+   </property>
+  </action>
+  <action name="mnuColumnVisuble">
+   <property name="text">
+    <string>Видимость колонок</string>
    </property>
   </action>
  </widget>
