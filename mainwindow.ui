@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>LogEvent</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -118,6 +118,11 @@
     <property name="title">
      <string>&amp;Файл</string>
     </property>
+    <addaction name="mnuOpenSrvinfo"/>
+    <addaction name="separator"/>
+    <addaction name="mnuDbConnect"/>
+    <addaction name="mnuDbClose"/>
+    <addaction name="separator"/>
     <addaction name="mnuExit"/>
    </widget>
    <widget class="QMenu" name="menu_2">
@@ -144,6 +149,21 @@
   <action name="mnuOptions">
    <property name="text">
     <string>Параметры</string>
+   </property>
+  </action>
+  <action name="mnuDbConnect">
+   <property name="text">
+    <string>Открыть базу данных</string>
+   </property>
+  </action>
+  <action name="mnuDbClose">
+   <property name="text">
+    <string>Закрыть базу данных</string>
+   </property>
+  </action>
+  <action name="mnuOpenSrvinfo">
+   <property name="text">
+    <string>Открыть каталог srvinfo</string>
    </property>
   </action>
  </widget>

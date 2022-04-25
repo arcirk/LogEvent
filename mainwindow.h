@@ -12,14 +12,14 @@ namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 struct standart_period{
-    uint startDate = 0;
-    uint endtDate = 0;
+    qint64 startDate = 0;
+    qint64 endtDate = 0;
 };
 
-enum bSettings{
-    LogEventPath = 0,
-    AppName
-};
+//enum bSettings{
+//    LogEventPath = 0,
+//    AppName
+//};
 
 class MainWindow : public QMainWindow
 {
@@ -28,6 +28,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    void connect_database();
 
 private slots:
     void on_dtEndDate_dateTimeChanged(const QDateTime &dateTime);
@@ -43,13 +45,20 @@ private slots:
     void loadAppSettings();
     //void saveAppSettings();
 
+    void on_mnuDbConnect_triggered();
+
+    void on_mnuOpenSrvinfo_triggered();
+
+    void on_mnuDbClose_triggered();
+
 private:
     Ui::MainWindow *ui;
     standart_period period;
-    QString logDbPateh;
+    //QString logDbPateh;
     QSqlDatabase dbLog;
     QSqlQueryModel * model;
     Settings  options;
+    Infobases * currentIB;
 
 };
 #endif // MAINWINDOW_H

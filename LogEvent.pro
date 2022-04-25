@@ -12,6 +12,7 @@ CONFIG += c++11
 
 SOURCES += \
     dialogoptions.cpp \
+    dialogselectinfobase.cpp \
     infobases.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -19,12 +20,14 @@ SOURCES += \
 
 HEADERS += \
     dialogoptions.h \
+    dialogselectinfobase.h \
     infobases.h \
     mainwindow.h \
     settings.h
 
 FORMS += \
     dialogoptions.ui \
+    dialogselectinfobase.ui \
     mainwindow.ui
 
 # Default rules for deployment.

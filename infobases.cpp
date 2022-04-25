@@ -36,12 +36,12 @@ void Infobases::setDescription(const QString &desc)
     _Description = desc;
 }
 
-int Infobases::SizeEventLog()
+double Infobases::SizeEventLog()
 {
     return _SizeEventLog;
 }
 
-void Infobases::setSizeEventLog(int size)
+void Infobases::setSizeEventLog(double size)
 {
     _SizeEventLog = size;
 }

@@ -15,15 +15,15 @@ public:
     void setGUID(const QString& guid);
     QString Description();
     void setDescription(const QString& desc);
-    int SizeEventLog();
-    void setSizeEventLog(int size);
+    double SizeEventLog();
+    void setSizeEventLog(double size);
     QString PathLogEvent();
     void setPathLogEvent(const QString& pth);
 private:
     QString _Name;
     QString _GUID;
     QString _Description;
-    int _SizeEventLog;
+    double _SizeEventLog;
     QString _PathLogEvent;
 
 signals:

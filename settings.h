@@ -27,21 +27,22 @@ const QStringList ColumnNames ={"rowID",
                                 "primaryPortCode",
                                 "secondaryPortCode"};
 
-class Settings // : public QObject
+
+class Settings : public QObject
 {
-    //Q_OBJECT
+    Q_OBJECT
 
 public:
 
 
-    explicit Settings();//QObject *parent = nullptr);
+    explicit Settings(QObject *parent = nullptr);
 
     void getSettings();
-    QString v8srvinfo_catalog();
+    QString v8srvinfo_catalog() const;
+    void set_v8srvinfo_catalog(const QString& val);
 
-    void setV8Root(const QString& val){
-       srv_v8info = val.toStdString();
-    }
+    QString v8srvinfo_logevent_catalog();
+
 
 #ifdef _WINDOWS
     void get_server_info(const QString& dirsrvinfo = "");
@@ -55,16 +56,18 @@ public:
 
 #ifdef _WINDOWS
     static QString get_service_command_line();
-    void parse_command_line(const QString& cmd, QString& result);
+    void parse_command_line(const QString& cmd, QString& result, QString& root_result);
 #endif
 
-
+    QMap<QString, Infobases*> get_infobases();
 
 private:
-    std::string srv_v8info;
+    QString _root_path;
+    QString _v8srvinfo;
     QMap<QString, Infobases*> info_bases;
     QMap<QString,bool> selectedCols;
 
+    void v8srvinfo_logevent_catalog(const QString& val);
 //signals:
 
 };

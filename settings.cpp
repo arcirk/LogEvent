@@ -70,7 +70,7 @@ QString Settings::get_service_command_line()
     return q;
 }
 
-void Settings::parse_command_line(const QString& cmd, QString& result){
+void Settings::parse_command_line(const QString& cmd, QString& result, QString& root_result){
 
     //QString ClusterFiles;
     QString s_temp = cmd;
@@ -109,11 +109,22 @@ void Settings::parse_command_line(const QString& cmd, QString& result){
     }
 
     if(!result.isEmpty()){
+        root_result = QDir::fromNativeSeparators(result);
         result.append(QDir::separator());
         result.append(srvinfoDir);
         result = QDir::fromNativeSeparators(result);
     }else
         result = "";
+}
+
+QMap<QString, Infobases *> Settings::get_infobases()
+{
+    return info_bases;
+}
+
+void Settings::v8srvinfo_logevent_catalog(const QString &val)
+{
+    _v8srvinfo = val;
 }
 
 
@@ -132,7 +143,7 @@ void Settings::getSettings()
         QJsonObject obj = doc.object();
         auto _logDbPateh = obj.find("dirsrvinfo");
         if(_logDbPateh->isString()){
-            srv_v8info = _logDbPateh->toString().toStdString();
+            _root_path = _logDbPateh->toString();
         }
         auto _mColVisible = obj.find("ColumnVisible");
         if(_mColVisible->isArray()){
@@ -148,8 +159,8 @@ void Settings::getSettings()
     file.close();
 }
 
-Settings::Settings()//QObject *parent)
-   // : QObject{parent}
+Settings::Settings(QObject *parent)
+    : QObject{parent}
 {
     getSettings();
 }
@@ -157,15 +168,43 @@ Settings::Settings()//QObject *parent)
 void Settings::get_server_info(const QString& dirsrvinfo)
 {
 
+    info_bases.clear();
+
     QString v8srvinfo = "";
+    QString _root;
 
     if(!dirsrvinfo.isEmpty()){
-        v8srvinfo = dirsrvinfo;
+
+        QDir fl(dirsrvinfo);
+        if(!fl.exists())
+            return;
+
+        QFile lst(fl.path() + QDir::separator() + "1cv8wsrv.lst");
+        if(!lst.open(QFile::ReadOnly))
+            return;
+
+        QString lst_text = QString::fromUtf8(lst.readAll());
+
+        lst.close();
+
+        QStringList rootSettings = ParseEventLogString(lst_text);
+        if(rootSettings.size() == 0)
+            return;
+        QStringList opt = ParseEventLogString(rootSettings[0]);
+        QStringList opt1 = ParseEventLogString(opt[1]);
+        QString sz_port;
+        if(opt1.size() > 2)
+            sz_port = opt1[2].trimmed();
+        else
+            return;
+
+        _root = fl.path();
+
+        v8srvinfo = QDir::fromNativeSeparators(fl.path() + QDir::separator() + "reg_" + sz_port);
+
     }else{
 #ifdef _WINDOWS
-
-    parse_command_line(get_service_command_line(), v8srvinfo);
-
+    parse_command_line(get_service_command_line(), v8srvinfo, _root);
 #endif
     }
 
@@ -205,15 +244,17 @@ void Settings::get_server_info(const QString& dirsrvinfo)
             QDir ibDir(inf->PathLogEvent());
             if(ibDir.exists()){
                quint64 SizeLog = dirFileSize(ibDir.path());
-               inf->setSizeEventLog(SizeLog / 1024 / 1024);
+               double dbl = (double)SizeLog / (double)1024 / (double)1024;
+               inf->setSizeEventLog(dbl);
             }
+
 
             info_bases.insert(inf->Name(), inf);
         }
     }
 
-    //f(srv_v8info != v8srvinfo)
-        setV8Root(v8srvinfo);
+    set_v8srvinfo_catalog(_root);
+    v8srvinfo_logevent_catalog(folder.path());
  }
 
 QStringList Settings::ParseEventLogString(const QString &text)
@@ -258,6 +299,16 @@ double Settings::CountSubstringInString(const QString &str, const QString &subst
     return (double)(str.length() - _str.replace(substr, "").length()) / (double)substr.length();
 }
 
-QString Settings::v8srvinfo_catalog(){
-    return QString::fromStdString(srv_v8info);
+QString Settings::v8srvinfo_catalog() const{
+    return _root_path;
+}
+
+void Settings::set_v8srvinfo_catalog(const QString &val)
+{
+    _root_path = val;
+}
+
+QString Settings::v8srvinfo_logevent_catalog()
+{
+    return _v8srvinfo;
 }
