@@ -6,6 +6,7 @@
 #include <QSqlDatabase>
 #include <QSqlQueryModel>
 #include "settings.h"
+#include <QSqlTableModel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -51,8 +52,11 @@ private:
     standart_period period;
     QSqlDatabase dbLog;
     QSqlQueryModel * model;
-    Settings  options;
+    //QSqlTableModel * m_model;
+    Settings  * options;
     Infobases * currentIB;
+
+    void setColumnsHiden();
 
 };
 #endif // MAINWINDOW_H

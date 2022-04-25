@@ -3,6 +3,8 @@
 
 #include <QDialog>
 #include <QMap>
+#include "settings.h"
+#include <QStandardItemModel>
 
 namespace Ui {
 class DialogSelectColumn;
@@ -14,12 +16,18 @@ class DialogSelectColumn : public QDialog
 
 public:
     explicit DialogSelectColumn(QWidget *parent = nullptr);
-    explicit DialogSelectColumn(QWidget *parent, QMap<QString,bool> &option);
+    explicit DialogSelectColumn(QWidget *parent, Settings * option);
 
     ~DialogSelectColumn();
 
+private slots:
+    void on_buttonBox_accepted();
+
 private:
     Ui::DialogSelectColumn *ui;
+    Settings * _option;
+    QStandardItemModel * model;
+
 };
 
 #endif // DIALOGSELECTCOLUMN_H

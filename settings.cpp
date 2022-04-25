@@ -158,12 +158,13 @@ void Settings::getSettings()
             _root_path = _logDbPateh->toString();
         }
         auto _mColVisible = obj.find("ColumnVisible");
-        if(_mColVisible->isArray()){
-            QJsonArray arr = _mColVisible->toArray();
-            for (auto iter : arr) {
-                QJsonObject item = iter.toObject();
-                bool val = item["value"].toBool();
-                selectedCols[item["name"].toString()] = val;
+        if(_mColVisible->isObject()){
+            QJsonObject arr = _mColVisible->toObject();
+            for (auto iter = arr.begin(); iter != arr.end(); ++iter) {
+                QString key = iter.key();
+                bool val = iter.value().toBool();
+                if(selectedCols.find(key) != selectedCols.end())
+                    selectedCols[key] = val;
             }
 
         }
@@ -176,15 +177,15 @@ void Settings::saveSettings()
     QJsonDocument m_doc{};
     QJsonObject obj = QJsonObject();
     obj.insert("dirsrvinfo", _root_path);
-    QJsonArray arr = QJsonArray();
+    QJsonObject item = QJsonObject();
 
-    for (auto itr = selectedCols.begin(); itr != selectedCols.end(); ++itr) {
-        QJsonObject item = QJsonObject();
-        item.insert(itr.key(), itr.value());
-        arr.append(item);
+    for (auto itr = selectedCols.begin(); itr != selectedCols.end(); ++itr) {       
+        if(!itr.key().isEmpty()){
+            item.insert(itr.key(), itr.value());
+        }
     }
 
-    obj.insert("ColumnVisible", arr);
+    obj.insert("ColumnVisible", item);
 
     m_doc.setObject(obj);
 

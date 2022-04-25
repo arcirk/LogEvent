@@ -9,7 +9,6 @@
 #include <dialogselectinfobase.h>
 #include <QDir>
 #include <QSqlQuery>
-#include <QSqlTableModel>
 #include <QFileDialog>
 #include "dialogselectcolumn.h"
 
@@ -19,45 +18,20 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    options.getSettings();
+    options = new Settings(this);
+    options->getSettings();
 
-    if(!options.v8srvinfo_catalog().isEmpty()){
-        options.get_server_info(options.v8srvinfo_catalog());
-        this->setWindowTitle("LogEvent:" + options.v8srvinfo_catalog());
+    if(!options->v8srvinfo_catalog().isEmpty()){
+        options->get_server_info(options->v8srvinfo_catalog());
+        this->setWindowTitle("LogEvent:" + options->v8srvinfo_catalog());
     }
 
     currentIB = nullptr;
 
     dbLog = QSqlDatabase::addDatabase("QSQLITE");
 
-//    logDbPateh = "";
-//    loadAppSettings();
-
     ui->dtStaretDate->setDateTime(QDateTime::currentDateTime().addDays(-1));
     ui->dtEndDate->setDateTime(QDateTime::currentDateTime());
-
-//    period.startDate = ui->dtStaretDate->dateTime().currentMSecsSinceEpoch();
-//    period.endtDate = ui->dtEndDate->dateTime().currentMSecsSinceEpoch();
-
-//    dbLog = QSqlDatabase::addDatabase("QSQLITE");
-//    if(!logDbPateh.isEmpty()){
-//        dbLog.setDatabaseName(logDbPateh);
-//        dbLog.open();
-//        if(!dbLog.isOpen()){
-//            qDebug() << "cannot open database";
-//        }else
-//            qDebug() << "open database success";
-//    }
-
-
-
-//    model = new QSqlQueryModel(ui->tableView);
-
-//    for (int i = 0; i < ColumnNames.size(); i++) {
-//        selectedCols.insert(ColumnNames[i], false);
-//    }
-
-
 
 }
 
@@ -73,7 +47,7 @@ void MainWindow::connect_database()
         return;
     }
 
-    QString dbPath = options.v8srvinfo_logevent_catalog()
+    QString dbPath = options->v8srvinfo_logevent_catalog()
             + QDir::separator()
             + currentIB->GUID()
             + QDir::separator()
@@ -162,19 +136,19 @@ void MainWindow::on_toolBtnUpdate_clicked()
             "workServerCode,"
             "primaryPortCode,"
             "secondaryPortCode"
-       " FROM EventLog"
-       " WHERE (date >= 637834570660002 AND date <= 637834570660005);";
+       " FROM EventLog";
 
-    //QSqlQueryModel * model = new QSqlQueryModel(this, );
+    //QSqlQuery * query = new QSqlQuery(_query);
+
     //model->setQuery(query);
     //model->
 //    ui->tableView->setModel(model);
 
-    QSqlQuery _query(dbLog);
-    _query.prepare(query);
-    Q_ASSERT(_query.exec());
+//    QSqlQuery _query(dbLog);
+//    _query.prepare(query);
+//    Q_ASSERT(_query.exec());
 
-    QSqlTableModel * m_model = new QSqlTableModel(this, dbLog);
+    auto m_model = new QSqlTableModel(this, dbLog);
     m_model->setTable("EventLog");
     //(62135578800 + 1647878264) * 10000
     qint64 startDate = ((qint64)62135578800 + period.startDate) * (qint64)10000;
@@ -187,7 +161,9 @@ void MainWindow::on_toolBtnUpdate_clicked()
 
     ui->tableView->setModel(m_model);
 
-    qDebug() << QString::number(startDate) << "  " << QString::number(endDate);
+    setColumnsHiden();
+
+    //qDebug() << QString::number(startDate) << "  " << QString::number(endDate);
 }
 
 
@@ -204,18 +180,18 @@ void MainWindow::on_mnuOptions_triggered()
 
 void MainWindow::on_mnuDbConnect_triggered()
 {
-    if(options.v8srvinfo_catalog().isEmpty()){
+    if(options->v8srvinfo_catalog().isEmpty()){
         QMessageBox::critical(this, "Ошибка", "Не найден каталог лог файлов!");
         return;
     }
 
-    auto dlg = new DialogSelectInfobase(this, options.get_infobases());
+    auto dlg = new DialogSelectInfobase(this, options->get_infobases());
     dlg->setModal(true);
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){
-        qDebug() << dlg->selectedItem;
-        currentIB = options.get_infobases()[dlg->selectedItem];
-        this->setWindowTitle("LogEvent:" + options.v8srvinfo_catalog() +  " (" + dlg->selectedItem + ")");
+        //qDebug() << dlg->selectedItem;
+        currentIB = options->get_infobases()[dlg->selectedItem];
+        this->setWindowTitle("LogEvent:" + options->v8srvinfo_catalog() +  " (" + dlg->selectedItem + ")");
         connect_database();
     }
 }
@@ -233,9 +209,9 @@ void MainWindow::on_mnuOpenSrvinfo_triggered()
 
         ui->tableView->setModel(nullptr);
 
-        options.get_server_info(dir);
-        this->setWindowTitle("LogEvent:" + options.v8srvinfo_catalog());
-        options.saveSettings();
+        options->get_server_info(dir);
+        this->setWindowTitle("LogEvent:" + options->v8srvinfo_catalog());
+        options->saveSettings();
     }
 }
 
@@ -244,19 +220,38 @@ void MainWindow::on_mnuDbClose_triggered()
 {
     if(dbLog.isOpen()){
         dbLog.close();
-        this->setWindowTitle(options.v8srvinfo_catalog());
+        this->setWindowTitle(options->v8srvinfo_catalog());
+        ui->tableView->setModel(nullptr);
+    }else{
+        QMessageBox::critical(this, "Ошибка", "База данных не открыта!");
     }
 }
 
 
 void MainWindow::on_mnuColumnVisuble_triggered()
 {
-    auto dlg = new DialogSelectColumn(this, options.get_selected_cols());
+    auto dlg = new DialogSelectColumn(this, options);
     dlg->setModal(true);
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){
-
+        options->saveSettings();
+        setColumnsHiden();
     }
 
+}
+
+void MainWindow::setColumnsHiden()
+{
+    if(ui->tableView->model()){
+        qDebug() << ui->tableView->model()->columnCount();
+        for(int i = 0; i < ui->tableView->model()->columnCount(); i++)
+        {
+          QString col = ui->tableView->model()->headerData(i, Qt::Horizontal).toString();
+          auto itr = options->get_selected_cols().find(col);
+          if(itr != options->get_selected_cols().end())
+              ui->tableView->setColumnHidden(i, !itr.value());
+        }
+        qDebug() << ui->tableView->model()->columnCount();
+    }
 }
 

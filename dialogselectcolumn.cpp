@@ -1,6 +1,5 @@
 #include "dialogselectcolumn.h"
 #include "ui_dialogselectcolumn.h"
-#include <QStandardItemModel>
 
 DialogSelectColumn::DialogSelectColumn(QWidget *parent) :
     QDialog(parent),
@@ -9,34 +8,64 @@ DialogSelectColumn::DialogSelectColumn(QWidget *parent) :
     ui->setupUi(this);
 }
 
-DialogSelectColumn::DialogSelectColumn(QWidget *parent, QMap<QString, bool> &option):
+DialogSelectColumn::DialogSelectColumn(QWidget *parent, Settings * option):
     QDialog(parent),
     ui(new Ui::DialogSelectColumn)
 {
     ui->setupUi(this);
 
-    auto model = new QStandardItemModel(this);
+    model = new QStandardItemModel(this);
     model->setColumnCount(2);
     QStandardItem * itemName = new QStandardItem("Имя");
     model->setHorizontalHeaderItem(0, itemName);
     QStandardItem * itemVal = new QStandardItem("Видимость");
     model->setHorizontalHeaderItem(1, itemVal);
 
-    model->setRowCount(option.size());
+    model->setRowCount(option->get_selected_cols().size());
     int i = 0;
 
-    for (auto itr = option.begin(); itr != option.end() ; ++itr) {
+    for (auto itr = option->get_selected_cols().begin(); itr != option->get_selected_cols().end() ; ++itr) {
         QStandardItem * item = new QStandardItem(itr.key());
         model->setItem(i, 0, item);
+        item->setEditable(false);
         QStandardItem * itemV = new QStandardItem(itr.value());
+        itemV->setCheckable(true);
+       if(itr.value()){
+            itemV->setCheckState(Qt::CheckState::Checked);
+       }
         model->setItem(i, 1, itemV);
         i++;
     }
 
     ui->tableView->setModel(model);
+    //resizeColumns();
+    //ui->tableView->horizontalHeader()->setStretchLastSection(true);
+    //ui->tableView->horizontalHeader()->setResizeContentsPrecision(QHeaderView::Stretch);
+    ui->tableView->setColumnWidth(0, this->width()/2);
+    //ui->tableView->setColumnWidth(1, this->width()/3);
+
+    _option = option;
 }
 
 DialogSelectColumn::~DialogSelectColumn()
 {
     delete ui;
 }
+
+
+void DialogSelectColumn::on_buttonBox_accepted()
+{
+
+    for (auto i = 0; i < model->rowCount(); i++) {
+        QStandardItem * item = model->item(i, 1);
+        QStandardItem * itemName = model->item(i, 0);
+        auto itr = _option->get_selected_cols().find(itemName->text());
+        if(itr != _option->get_selected_cols().end()){
+            bool val = item->checkState() == Qt::CheckState::Checked;
+            _option->get_selected_cols()[itemName->text()] = val;
+        }
+
+
+    }
+}
+
