@@ -17,6 +17,7 @@ SOURCES += \
     infobases.cpp \
     main.cpp \
     mainwindow.cpp \
+    querybuilder.cpp \
     settings.cpp
 
 HEADERS += \
@@ -25,6 +26,7 @@ HEADERS += \
     dialogselectinfobase.h \
     infobases.h \
     mainwindow.h \
+    querybuilder.h \
     settings.h
 
 FORMS += \

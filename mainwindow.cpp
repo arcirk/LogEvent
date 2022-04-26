@@ -115,7 +115,7 @@ void MainWindow::on_toolBtnUpdate_clicked()
     }
 
 
-    QString query = "SELECT rowID,"
+    QString strquery = "SELECT rowID,"
             "severity,"
             "date,"
             "connectID,"
@@ -126,7 +126,7 @@ void MainWindow::on_toolBtnUpdate_clicked()
             "userCode,"
             "computerCode,"
             "appCode,"
-           "eventCode,"
+            "eventCode,"
             "comment,"
             "metadataCodes,"
             "sessionDataSplitCode,"
@@ -138,7 +138,11 @@ void MainWindow::on_toolBtnUpdate_clicked()
             "secondaryPortCode"
        " FROM EventLog";
 
-    //QSqlQuery * query = new QSqlQuery(_query);
+    QSqlQueryModel * queryModel = new QSqlQueryModel();
+    queryModel->setQuery(strquery);
+
+    ui->tableView->setModel(queryModel);
+    //ui->tableView->show();
 
     //model->setQuery(query);
     //model->
@@ -148,18 +152,20 @@ void MainWindow::on_toolBtnUpdate_clicked()
 //    _query.prepare(query);
 //    Q_ASSERT(_query.exec());
 
-    auto m_model = new QSqlTableModel(this, dbLog);
-    m_model->setTable("EventLog");
-    //(62135578800 + 1647878264) * 10000
-    qint64 startDate = ((qint64)62135578800 + period.startDate) * (qint64)10000;
-    qint64 endDate = ((qint64)62135578800 + period.endDate) * (qint64)10000;
+//    //
+//    auto m_model = new QSqlTableModel(this, dbLog);
+//    m_model->setTable("EventLog");
+//    //(62135578800 + 1647878264) * 10000
+//    qint64 startDate = ((qint64)62135578800 + period.startDate) * (qint64)10000;
+//    qint64 endDate = ((qint64)62135578800 + period.endDate) * (qint64)10000;
 
-    m_model->setFilter(QString("(date >= %1 AND date <= %2)").arg(QString::number(startDate), QString::number(endDate)));
-    qDebug() << period.startDate;
-    //m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    m_model->select();
+//    m_model->setFilter(QString("(date >= %1 AND date <= %2)").arg(QString::number(startDate), QString::number(endDate)));
+//    qDebug() << period.startDate;
+//    //m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+//    m_model->select();
+//    //
 
-    ui->tableView->setModel(m_model);
+//    ui->tableView->setModel(m_model);
 
     setColumnsHiden();
 
