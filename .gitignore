@@ -27,3 +27,4 @@ cmake-build-release/
 
 *.user
 *.autosave
+/x64/

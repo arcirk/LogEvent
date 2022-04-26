@@ -57,12 +57,13 @@ public:
 
     void addFilter(FilerData filter);
 
+    QString toString();
 private:
     BuilderPeriod period;
     QMap<QString, QString> aliases;
     QList<FilerData> m_ListFiler;
     QString getDefaultQuery();
-
+    QString m_queryText;
 };
 
 #endif // QUERYBUILDER_H

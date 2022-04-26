@@ -7,6 +7,7 @@
 #include <QSqlQueryModel>
 #include "settings.h"
 #include <QSqlTableModel>
+#include <querybuilder.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

@@ -81,17 +81,14 @@ void MainWindow::connect_database()
 void MainWindow::on_dtEndDate_dateTimeChanged(const QDateTime &dateTime)
 {
    period.endDate = dateTime.toSecsSinceEpoch() + dateTime.offsetFromUtc();
-   qDebug() << period.endDate;
+   //qDebug() << period.endDate;
 }
 
 
 void MainWindow::on_dtStaretDate_dateTimeChanged(const QDateTime &dateTime)
 {
     period.startDate = dateTime.toSecsSinceEpoch() + dateTime.offsetFromUtc();
-    //qDebug() << dateTime;
-    qDebug() << period.startDate;
-//    qDebug() << dateTime.toSecsSinceEpoch();
-//    qDebug() << dateTime.offsetFromUtc();
+    //qDebug() << period.startDate;
 }
 
 
@@ -115,33 +112,46 @@ void MainWindow::on_toolBtnUpdate_clicked()
     }
 
 
-    QString strquery = "SELECT rowID,"
-            "severity,"
-            "date,"
-            "connectID,"
-            "session,"
-            "transactionStatus,"
-            "transactionDate,"
-            "transactionID,"
-            "userCode,"
-            "computerCode,"
-            "appCode,"
-            "eventCode,"
-            "comment,"
-            "metadataCodes,"
-            "sessionDataSplitCode,"
-            "dataType,"
-            "data,"
-            "dataPresentation,"
-            "workServerCode,"
-            "primaryPortCode,"
-            "secondaryPortCode"
-       " FROM EventLog";
+//    QString strquery = "SELECT rowID,"
+//            "severity,"
+//            "date,"
+//            "connectID,"
+//            "session,"
+//            "transactionStatus,"
+//            "transactionDate,"
+//            "transactionID,"
+//            "userCode,"
+//            "computerCode,"
+//            "appCode,"
+//            "eventCode,"
+//            "comment,"
+//            "metadataCodes,"
+//            "sessionDataSplitCode,"
+//            "dataType,"
+//            "data,"
+//            "dataPresentation,"
+//            "workServerCode,"
+//            "primaryPortCode,"
+//            "secondaryPortCode"
+//       " FROM EventLog";
+//
+//    QSqlQueryModel * queryModel = new QSqlQueryModel();
+//    queryModel->setQuery(strquery);
+//
+//    ui->tableView->setModel(queryModel);
 
-    QSqlQueryModel * queryModel = new QSqlQueryModel();
-    queryModel->setQuery(strquery);
+    QueryBuilder * mainModel = new QueryBuilder();
+    mainModel->set_period(ui->dtStaretDate->dateTime(), ui->dtEndDate->dateTime());
+    FilerData filerData;
+    filerData.field = "appCode";
+    filerData.type = ComparisonType::equals;
+    filerData.value = 0;
+    mainModel->addFilter(filerData);
+    QString err;
+    mainModel->build(err);
+    ui->tableView->setModel(mainModel);
+    qDebug() << qPrintable(mainModel->toString());
 
-    ui->tableView->setModel(queryModel);
     //ui->tableView->show();
 
     //model->setQuery(query);
