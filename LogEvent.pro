@@ -14,6 +14,9 @@ SOURCES += \
     dialogoptions.cpp \
     dialogselectcolumn.cpp \
     dialogselectinfobase.cpp \
+    dialogselectitemsfilter.cpp \
+    dialogsqlfilter.cpp \
+    electionlistsmodel.cpp \
     infobases.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -24,6 +27,9 @@ HEADERS += \
     dialogoptions.h \
     dialogselectcolumn.h \
     dialogselectinfobase.h \
+    dialogselectitemsfilter.h \
+    dialogsqlfilter.h \
+    electionlistsmodel.h \
     infobases.h \
     mainwindow.h \
     querybuilder.h \
@@ -33,6 +39,8 @@ FORMS += \
     dialogoptions.ui \
     dialogselectcolumn.ui \
     dialogselectinfobase.ui \
+    dialogselectitemsfilter.ui \
+    dialogsqlfilter.ui \
     mainwindow.ui
 
 # Default rules for deployment.

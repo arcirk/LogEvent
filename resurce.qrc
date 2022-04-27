@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>img/tbglacti_100.png</file>
+        <file>img/checked_100.png</file>
+        <file>img/unchecked_100.png</file>
     </qresource>
 </RCC>

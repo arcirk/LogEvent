@@ -64,6 +64,8 @@ private:
     QList<FilerData> m_ListFiler;
     QString getDefaultQuery();
     QString m_queryText;
+
+
 };
 
 #endif // QUERYBUILDER_H

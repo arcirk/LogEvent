@@ -11,6 +11,7 @@
 #include <QSqlQuery>
 #include <QFileDialog>
 #include "dialogselectcolumn.h"
+#include "dialogsqlfilter.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -32,6 +33,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->dtStaretDate->setDateTime(QDateTime::currentDateTime().addDays(-1));
     ui->dtEndDate->setDateTime(QDateTime::currentDateTime());
+
+    infoBar = new QLabel(this);
+    ui->statusbar->addWidget(infoBar);
+    infoBar->setText("Готово");
 
 }
 
@@ -77,26 +82,26 @@ void MainWindow::connect_database()
 
 }
 
-
 void MainWindow::on_dtEndDate_dateTimeChanged(const QDateTime &dateTime)
 {
-   period.endDate = dateTime.toSecsSinceEpoch() + dateTime.offsetFromUtc();
-   //qDebug() << period.endDate;
+    period.endDate = dateTime.toSecsSinceEpoch() + dateTime.offsetFromUtc();
+    if(dbLog.isOpen()){
+        on_toolBtnUpdate_clicked();
+    }
 }
-
 
 void MainWindow::on_dtStaretDate_dateTimeChanged(const QDateTime &dateTime)
 {
     period.startDate = dateTime.toSecsSinceEpoch() + dateTime.offsetFromUtc();
-    //qDebug() << period.startDate;
+    if(dbLog.isOpen()){
+        on_toolBtnUpdate_clicked();
+    }
 }
-
 
 void MainWindow::on_mnuExit_triggered()
 {
     QApplication::exit();
 }
-
 
 void MainWindow::on_toolBtnUpdate_clicked()
 {
@@ -111,77 +116,21 @@ void MainWindow::on_toolBtnUpdate_clicked()
         return;
     }
 
-
-//    QString strquery = "SELECT rowID,"
-//            "severity,"
-//            "date,"
-//            "connectID,"
-//            "session,"
-//            "transactionStatus,"
-//            "transactionDate,"
-//            "transactionID,"
-//            "userCode,"
-//            "computerCode,"
-//            "appCode,"
-//            "eventCode,"
-//            "comment,"
-//            "metadataCodes,"
-//            "sessionDataSplitCode,"
-//            "dataType,"
-//            "data,"
-//            "dataPresentation,"
-//            "workServerCode,"
-//            "primaryPortCode,"
-//            "secondaryPortCode"
-//       " FROM EventLog";
-//
-//    QSqlQueryModel * queryModel = new QSqlQueryModel();
-//    queryModel->setQuery(strquery);
-//
-//    ui->tableView->setModel(queryModel);
-
     QueryBuilder * mainModel = new QueryBuilder();
     mainModel->set_period(ui->dtStaretDate->dateTime(), ui->dtEndDate->dateTime());
     FilerData filerData;
-    filerData.field = "appCode";
+    filerData.field = "eventCode";
     filerData.type = ComparisonType::equals;
-    filerData.value = 0;
+    filerData.value = 50;
     mainModel->addFilter(filerData);
     QString err;
     mainModel->build(err);
     ui->tableView->setModel(mainModel);
     qDebug() << qPrintable(mainModel->toString());
 
-    //ui->tableView->show();
-
-    //model->setQuery(query);
-    //model->
-//    ui->tableView->setModel(model);
-
-//    QSqlQuery _query(dbLog);
-//    _query.prepare(query);
-//    Q_ASSERT(_query.exec());
-
-//    //
-//    auto m_model = new QSqlTableModel(this, dbLog);
-//    m_model->setTable("EventLog");
-//    //(62135578800 + 1647878264) * 10000
-//    qint64 startDate = ((qint64)62135578800 + period.startDate) * (qint64)10000;
-//    qint64 endDate = ((qint64)62135578800 + period.endDate) * (qint64)10000;
-
-//    m_model->setFilter(QString("(date >= %1 AND date <= %2)").arg(QString::number(startDate), QString::number(endDate)));
-//    qDebug() << period.startDate;
-//    //m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-//    m_model->select();
-//    //
-
-//    ui->tableView->setModel(m_model);
-
     setColumnsHiden();
-
-    //qDebug() << QString::number(startDate) << "  " << QString::number(endDate);
+    //infoBar->setText("Выполнено. Количество записей: " + QString::number(ui->tableView->model()->rowCount()));
 }
-
 
 void MainWindow::on_mnuOptions_triggered()
 {
@@ -192,7 +141,6 @@ void MainWindow::on_mnuOptions_triggered()
         //loadAppSettings();
     }
 }
-
 
 void MainWindow::on_mnuDbConnect_triggered()
 {
@@ -212,7 +160,6 @@ void MainWindow::on_mnuDbConnect_triggered()
     }
 }
 
-
 void MainWindow::on_mnuOpenSrvinfo_triggered()
 {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Выбрать каталог"),
@@ -231,7 +178,6 @@ void MainWindow::on_mnuOpenSrvinfo_triggered()
     }
 }
 
-
 void MainWindow::on_mnuDbClose_triggered()
 {
     if(dbLog.isOpen()){
@@ -242,7 +188,6 @@ void MainWindow::on_mnuDbClose_triggered()
         QMessageBox::critical(this, "Ошибка", "База данных не открыта!");
     }
 }
-
 
 void MainWindow::on_mnuColumnVisuble_triggered()
 {
@@ -268,6 +213,21 @@ void MainWindow::setColumnsHiden()
               ui->tableView->setColumnHidden(i, !itr.value());
         }
         qDebug() << ui->tableView->model()->columnCount();
+    }
+}
+
+
+void MainWindow::on_btnOpenFilterDlg_clicked()
+{
+    if(!dbLog.isOpen()){
+        QMessageBox::critical(this, "Ошибка", "База данных не открыта!");
+        return;
+    }
+    auto dlg = new DialogSqlFilter(this, dbLog, "");
+    dlg->setModal(true);
+    dlg->exec();
+    if(dlg->result() == QDialog::Accepted){
+
     }
 }
 

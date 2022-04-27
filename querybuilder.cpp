@@ -24,13 +24,12 @@ void QueryBuilder::build(QString& err)
     }
 
     QString _query = getDefaultQuery();
-    QString _where = QString("\nWHERE log.data between (%1 AND %2)").arg(QString::number(period.startdate_full_seconds()), QString::number(period.enddate_full_seconds()));
+    //QString _where = QString("\nWHERE log.date between (%1 AND %2)").arg(QString::number(period.startdate_full_seconds()), QString::number(period.enddate_full_seconds()));
+    QString _where = QString("\nWHERE log.date >= %1 AND log.date <= %2").arg(QString::number(period.startdate_full_seconds()), QString::number(period.enddate_full_seconds()));
 
     for (auto itr = m_ListFiler.begin(); itr != m_ListFiler.end(); ++itr) {
-        //if(itr != m_ListFiler.begin()){
-            _where.append("\nAND ");
-//        }else
-//            _where.append("\n");
+
+        _where.append("\nAND ");
 
         if(itr->type == ComparisonType::no_equals || itr->type == ComparisonType::not_in_list){
              _where.append(" NOT ");

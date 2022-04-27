@@ -8,12 +8,13 @@
 #include "settings.h"
 #include <QSqlTableModel>
 #include <querybuilder.h>
+#include <QLabel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-struct standart_period{
+struct standard_period{
     qint64 startDate = 0;
     qint64 endDate = 0;
 };
@@ -48,14 +49,17 @@ private slots:
 
     void on_mnuColumnVisuble_triggered();
 
+    void on_btnOpenFilterDlg_clicked();
+
 private:
     Ui::MainWindow *ui;
-    standart_period period;
+    standard_period period;
     QSqlDatabase dbLog;
     QSqlQueryModel * model;
     //QSqlTableModel * m_model;
     Settings  * options;
     Infobases * currentIB;
+    QLabel * infoBar;
 
     void setColumnsHiden();
 

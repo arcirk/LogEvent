@@ -38,11 +38,7 @@ DialogSelectColumn::DialogSelectColumn(QWidget *parent, Settings * option):
     }
 
     ui->tableView->setModel(model);
-    //resizeColumns();
-    //ui->tableView->horizontalHeader()->setStretchLastSection(true);
-    //ui->tableView->horizontalHeader()->setResizeContentsPrecision(QHeaderView::Stretch);
     ui->tableView->setColumnWidth(0, this->width()/2);
-    //ui->tableView->setColumnWidth(1, this->width()/3);
 
     _option = option;
 }
