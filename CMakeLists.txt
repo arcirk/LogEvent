@@ -38,6 +38,12 @@ set(PROJECT_SOURCES
         resurce.qrc
         settings.cpp
         settings.h
+        dialogsqlfilter.cpp
+        dialogsqlfilter.h
+        dialogsqlfilter.ui
+        dialogselectitemsfilter.cpp
+        dialogselectitemsfilter.h
+        dialogselectitemsfilter.ui
         )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

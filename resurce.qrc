@@ -3,5 +3,8 @@
         <file>img/tbglacti_100.png</file>
         <file>img/checked_100.png</file>
         <file>img/unchecked_100.png</file>
+        <file>img/MainMDImages_100.png</file>
+        <file>img/itemDelete.png</file>
+        <file>img/itemAdd</file>
     </qresource>
 </RCC>

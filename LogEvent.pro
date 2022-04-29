@@ -17,6 +17,8 @@ SOURCES += \
     dialogselectitemsfilter.cpp \
     dialogsqlfilter.cpp \
     electionlistsmodel.cpp \
+    filteritem.cpp \
+    filtermanager.cpp \
     infobases.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -30,6 +32,8 @@ HEADERS += \
     dialogselectitemsfilter.h \
     dialogsqlfilter.h \
     electionlistsmodel.h \
+    filteritem.h \
+    filtermanager.h \
     infobases.h \
     mainwindow.h \
     querybuilder.h \

@@ -9,6 +9,7 @@
 #include <QSqlTableModel>
 #include <querybuilder.h>
 #include <QLabel>
+#include "filtermanager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -60,6 +61,8 @@ private:
     Settings  * options;
     Infobases * currentIB;
     QLabel * infoBar;
+
+    FilterManager * filterManager;
 
     void setColumnsHiden();
 

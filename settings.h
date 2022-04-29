@@ -6,26 +6,49 @@
 #include "infobases.h"
 
 const QStringList ColumnNames ={"rowID",
-                                "severity",
-                                "date",
-                                "connectID",
-                                "session",
-                                "transactionStatus",
-                                "transactionDate",
-                                "transactionID",
-                                "userCode",
-                                "computerCode",
-                                "appCode",
-                                "eventCode",
-                                "comment",
-                                "metadataCodes",
-                                "sessionDataSplitCode",
-                                "dataType",
-                                "data",
-                                "dataPresentation",
-                                "workServerCode",
-                                "primaryPortCode",
-                                "secondaryPortCode"};
+                                    "severity",
+                                    "date",
+                                    "connectID",
+                                    "session",
+                                    "transactionStatus",
+                                    "transactionDate",
+                                    "transactionID",
+                                    "userCode",
+                                    "computerCode",
+                                    "appCode",
+                                    "eventCode",
+                                    "comment",
+                                    "metadataCodes",
+                                    "sessionDataSplitCode",
+                                    "dataType",
+                                    "data",
+                                    "dataPresentation",
+                                    "workServerCode",
+                                    "primaryPortCode",
+                                    "secondaryPortCode"};
+    enum LogEventColumn{
+        rowID = 0,
+        severity,
+        date,
+        connectID,
+        session,
+        transactionStatus,
+        transactionDate,
+        transactionID,
+        userCode,
+        computerCode,
+        appCode,
+        eventCode,
+        comment,
+        metadataCodes,
+        sessionDataSplitCode,
+        dataType,
+        data,
+        dataPresentation,
+        workServerCode,
+        primaryPortCode,
+        secondaryPortCode
+    };
 
 
 class Settings : public QObject
@@ -33,7 +56,6 @@ class Settings : public QObject
     Q_OBJECT
 
 public:
-
 
     explicit Settings(QObject *parent = nullptr);
 

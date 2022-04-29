@@ -60,6 +60,8 @@ DialogSelectItemsFilter::DialogSelectItemsFilter(QWidget *parent, const QString 
     ui->tableView->setColumnHidden(2, true);
     ui->tableView->resizeColumnsToContents();
     ui->hlayout->addStretch();
+
+    setWindowTitle(table);
 }
 
 DialogSelectItemsFilter::~DialogSelectItemsFilter()

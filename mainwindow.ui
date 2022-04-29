@@ -37,6 +37,10 @@
             <property name="text">
              <string>...</string>
             </property>
+            <property name="icon">
+             <iconset resource="resurce.qrc">
+              <normaloff>:/img/MainMDImages_100.png</normaloff>:/img/MainMDImages_100.png</iconset>
+            </property>
            </widget>
           </item>
           <item>

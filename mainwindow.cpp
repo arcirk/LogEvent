@@ -34,6 +34,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->dtStaretDate->setDateTime(QDateTime::currentDateTime().addDays(-1));
     ui->dtEndDate->setDateTime(QDateTime::currentDateTime());
 
+    filterManager = new FilterManager();
+
     infoBar = new QLabel(this);
     ui->statusbar->addWidget(infoBar);
     infoBar->setText("Готово");
@@ -223,7 +225,7 @@ void MainWindow::on_btnOpenFilterDlg_clicked()
         QMessageBox::critical(this, "Ошибка", "База данных не открыта!");
         return;
     }
-    auto dlg = new DialogSqlFilter(this, dbLog, "");
+    auto dlg = new DialogSqlFilter(this, filterManager );
     dlg->setModal(true);
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){
