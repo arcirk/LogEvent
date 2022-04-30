@@ -15,11 +15,13 @@ public:
 
     void setKey(LogEventColumn index);
     void setValue(const QVariant& val);
+    void setAliasesValue(const QVariant& val);
     void setCompareType(ComparisonType type);
     void setUse(bool val);
 
     LogEventColumn keyIndex();
     QVariant value();
+    QVariant aliasesValue();
     QString key();
     ComparisonType compareType();
     bool use();
@@ -27,6 +29,7 @@ public:
 private:
     LogEventColumn _keyIndex;
     QVariant _value;
+    QVariant _valueAliases;
     QString _key;
     ComparisonType _compareType;
     bool _use;

@@ -146,7 +146,7 @@ void Settings::getSettings()
 
     selectedCols.clear();
 
-    for(auto itr : ColumnNames){
+    for(auto itr : ColumnNamesAliases){
         selectedCols.insert(itr, true);
     }
 

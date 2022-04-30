@@ -120,18 +120,32 @@ void MainWindow::on_toolBtnUpdate_clicked()
 
     QueryBuilder * mainModel = new QueryBuilder();
     mainModel->set_period(ui->dtStaretDate->dateTime(), ui->dtEndDate->dateTime());
-    FilerData filerData;
-    filerData.field = "eventCode";
-    filerData.type = ComparisonType::equals;
-    filerData.value = 50;
-    mainModel->addFilter(filerData);
+    for (auto itr  : filterManager->filterItems()) {
+        if(itr->use()){
+            FilerData filerData;
+            filerData.field = itr->key();
+            filerData.type = itr->compareType();
+            filerData.value = itr->value();
+            mainModel->addFilter(filerData);
+        }
+    }
+
     QString err;
     mainModel->build(err);
     ui->tableView->setModel(mainModel);
     qDebug() << qPrintable(mainModel->toString());
 
     setColumnsHiden();
-    //infoBar->setText("Выполнено. Количество записей: " + QString::number(ui->tableView->model()->rowCount()));
+    //ui->tableView->resizeColumnsToContents();
+
+    for (int i = 0; i < ui->tableView->model()->columnCount(); i++) {
+
+        if(ui->tableView->model()->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString() != "Комментарий")
+            ui->tableView->resizeColumnToContents(i);
+
+    }
+
+
 }
 
 void MainWindow::on_mnuOptions_triggered()
@@ -229,7 +243,13 @@ void MainWindow::on_btnOpenFilterDlg_clicked()
     dlg->setModal(true);
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){
-
+        on_toolBtnUpdate_clicked();
     }
+}
+
+
+void MainWindow::on_btnConnectDb_clicked()
+{
+    on_mnuDbConnect_triggered();
 }
 

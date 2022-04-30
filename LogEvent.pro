@@ -23,6 +23,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     querybuilder.cpp \
+    selectiondialog.cpp \
     settings.cpp
 
 HEADERS += \
@@ -37,6 +38,7 @@ HEADERS += \
     infobases.h \
     mainwindow.h \
     querybuilder.h \
+    selectiondialog.h \
     settings.h
 
 FORMS += \
@@ -45,7 +47,8 @@ FORMS += \
     dialogselectinfobase.ui \
     dialogselectitemsfilter.ui \
     dialogsqlfilter.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    selectiondialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

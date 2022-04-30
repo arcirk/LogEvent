@@ -52,6 +52,8 @@ private slots:
 
     void on_btnOpenFilterDlg_clicked();
 
+    void on_btnConnectDb_clicked();
+
 private:
     Ui::MainWindow *ui;
     standard_period period;

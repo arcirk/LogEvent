@@ -22,6 +22,17 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
+           <widget class="QToolButton" name="btnConnectDb">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resurce.qrc">
+              <normaloff>:/img/extDatabase.png</normaloff>:/img/extDatabase.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QToolButton" name="toolBtnUpdate">
             <property name="text">
              <string>...</string>
@@ -158,6 +169,10 @@
    </property>
   </action>
   <action name="mnuDbConnect">
+   <property name="icon">
+    <iconset resource="resurce.qrc">
+     <normaloff>:/img/extDatabase.png</normaloff>:/img/extDatabase.png</iconset>
+   </property>
    <property name="text">
     <string>Открыть базу данных</string>
    </property>

@@ -25,17 +25,47 @@ public:
 
 private slots:
 
+    void onToolButtonToggle();
+
+    void on_btnFilterItemDelete_clicked();
+
+    void on_tableWidget_doubleClicked(const QModelIndex &index);
+
+    void onSelectedFormShow(ComparisonType type , QWidget *pWidgetVal, const QString& field, int row);
+
+    void onItemComboCurrentIndexChanged(int index);
+
+    void on_buttonBox_accepted();
 
 private:
     Ui::DialogSqlFilter *ui;    
     FilterManager * _filterManager;
 
     QStandardItemModel * m_model;
-   // QMap<LogEventColumn, filterItemUi*> m_controls;
 
-    void setControls();
-    void updateData();
+    void addFilter(const QString& filter_field);
 
+    QMap<QString, ComparisonType> _compareType;
+    QMap<QString, QString> _aliases;
+    QMap<QString, QString> _aliasesField;
+
+    const QStringList szComparisonType{
+        "равно",
+        "не равно",
+        "больше",
+        "больше или равно",
+        "меньше",
+        "меньше или равно",
+        "в списке",
+        "не в списке"
+    };
+
+    void loadFilterItems();
+
+signals:
+
+    void selectedFormShow(ComparisonType type , QWidget *pWidgetVal, const QString& field, int row);
+    void itemComboCurrentIndexChanged(int index);
 
 };
 

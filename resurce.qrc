@@ -6,5 +6,6 @@
         <file>img/MainMDImages_100.png</file>
         <file>img/itemDelete.png</file>
         <file>img/itemAdd</file>
+        <file>img/extDatabase.png</file>
     </qresource>
 </RCC>

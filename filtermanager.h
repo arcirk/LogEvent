@@ -8,12 +8,14 @@
 #include "filteritem.h"
 #include <QMap>
 
+
+
 class FilterManager
 {
 public:
     explicit FilterManager();
 
-    void setFilter(LogEventColumn  colIndex, ComparisonType compareType, const QVariant& vals);
+    void setFilter(LogEventColumn  colIndex, ComparisonType compareType, const QVariant& vals, bool use, const QVariant& alias_vals);
     QMap<LogEventColumn, FilterItem*>& filterItems();
 
 

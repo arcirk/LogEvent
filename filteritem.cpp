@@ -16,6 +16,11 @@ void FilterItem::setValue(const QVariant &val)
     _value = val;
 }
 
+void FilterItem::setAliasesValue(const QVariant &val)
+{
+    _valueAliases = val;
+}
+
 void FilterItem::setCompareType(ComparisonType type)
 {
     _compareType = type;
@@ -34,6 +39,21 @@ LogEventColumn FilterItem::keyIndex()
 QVariant FilterItem::value()
 {
     return _value;
+}
+
+QVariant FilterItem::aliasesValue()
+{
+    return _valueAliases;
+}
+
+QString FilterItem::key()
+{
+    return _key;
+}
+
+ComparisonType FilterItem::compareType()
+{
+    return _compareType;
 }
 
 bool FilterItem::use()

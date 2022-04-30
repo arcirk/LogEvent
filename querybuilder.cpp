@@ -83,13 +83,13 @@ void QueryBuilder::addFilter(FilerData filter)
 
 QString QueryBuilder::getDefaultQuery()
 {
-    return "SELECT CASE WHEN log.date = 0 THEN '0001-01-01 00.00.00' ELSE datetime(log.date / 10000 - 62135578800, 'unixepoch') END AS date,"
-            "\nacodes.name AS appName,"
-            "\necodes.name AS event,"
-            "\npkcodes.name AS computer,"
-            "\nlog.comment AS comment,"
-            "\nmdcodes.name AS metadata,"
-            "\nucodes.name AS user,"
+    return "SELECT CASE WHEN log.date = 0 THEN '0001-01-01 00.00.00' ELSE datetime(log.date / 10000 - 62135578800, 'unixepoch') END AS Дата,"
+            "\nacodes.name AS Приложение,"
+            "\necodes.name AS Событие,"
+            "\npkcodes.name AS Компьютер,"
+            "\nlog.comment AS Комментарий,"
+            "\nmdcodes.name AS Метаданные,"
+            "\nucodes.name AS Пользователь,"
             "\nlog.dataType AS dataType,"
             "\nlog.data AS data,"
             "\nlog.dataPresentation AS dataPresentation,"
@@ -104,8 +104,9 @@ QString QueryBuilder::getDefaultQuery()
             "\nLEFT JOIN"
             "\nMetadataCodes mdcodes ON log.metadataCodes = mdcodes.code"
             "\nLEFT JOIN"
-            "\nUserCodes ucodes ON log.userCode = ucodes.code";
+           "\nUserCodes ucodes ON log.userCode = ucodes.code";
 }
+
 
 QString QueryBuilder::toString() {
     return m_queryText;

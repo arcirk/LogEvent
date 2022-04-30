@@ -17,7 +17,7 @@
    <item row="1" column="0">
     <widget class="QTableWidget" name="tableWidget"/>
    </item>
-   <item row="3" column="0">
+   <item row="2" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -52,9 +52,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="2" column="0">
-    <widget class="QTableView" name="tableView"/>
    </item>
   </layout>
  </widget>
