@@ -58,6 +58,9 @@ public:
     void addFilter(FilerData filter);
 
     QString toString();
+
+    void execQuery(const QString& query);
+
 private:
     BuilderPeriod period;
     QMap<QString, QString> aliases;

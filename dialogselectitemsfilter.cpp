@@ -87,13 +87,14 @@ void DialogSelectItemsFilter::init_sql_table(const QString& table, const QString
     QSqlQuery _query;
     _query.exec(query);
 
-    _query.last();
-    int row_count = _query.at();
-    _query.first();
-    model->setRowCount(row_count);
+//    _query.last();
+//    int row_count = _query.at() + 1;
+//    _query.first();
+//    model->setRowCount(row_count);
 
     int i = 0;
     while (_query.next()) {
+        model->setRowCount(i+1);
         QStandardItem * sel = new QStandardItem();
         model->setItem(i, 0, sel);
         sel->setCheckable(true);

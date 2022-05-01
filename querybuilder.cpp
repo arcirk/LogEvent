@@ -111,3 +111,9 @@ QString QueryBuilder::getDefaultQuery()
 QString QueryBuilder::toString() {
     return m_queryText;
 }
+
+void QueryBuilder::execQuery(const QString &query)
+{
+    setQuery(query);
+
+}

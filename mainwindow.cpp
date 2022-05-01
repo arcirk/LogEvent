@@ -12,6 +12,8 @@
 #include <QFileDialog>
 #include "dialogselectcolumn.h"
 #include "dialogsqlfilter.h"
+#include "dialogselectedrow.h"
+#include "dialogsvalefilter.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -40,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->statusbar->addWidget(infoBar);
     infoBar->setText("Готово");
 
+    connect(filterManager, &FilterManager::updateFilterOptions, this, &MainWindow::onUpdateFiltersOptions);
+    connect(filterManager, &FilterManager::updateAllFilterOptions, this, &MainWindow::onUpdateAllFilterOptions);
 }
 
 MainWindow::~MainWindow()
@@ -64,7 +68,7 @@ void MainWindow::connect_database()
 
     dbPath = QDir::fromNativeSeparators(dbPath);
 
-    qDebug() << dbPath;
+    //qDebug() << dbPath;
 
     QFile dbFile(dbPath);
     if(!dbFile.exists()){
@@ -79,8 +83,12 @@ void MainWindow::connect_database()
     dbLog.open();
     if(!dbLog.isOpen()){
         qDebug() << "cannot open database";
-    }else
+    }else{
         qDebug() << "open database success";
+        read_filters_cache();
+    }
+
+    filterManager->setDatabaseName(currentIB->Name());
 
 }
 
@@ -232,6 +240,95 @@ void MainWindow::setColumnsHiden()
     }
 }
 
+void MainWindow::read_filters_cache()
+{
+    if(!currentIB)
+        return;
+
+    if(currentIB->Name().isEmpty())
+        return;
+
+   QFile file("filters.json");
+   if (!file.open(QIODevice::ReadOnly))
+   {
+       return;
+   }
+
+   QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+
+   file.close();
+
+   if(!doc.isNull()){
+
+       QJsonObject obj = doc.object();
+
+       if(obj.isEmpty())
+           return;
+
+       auto itr = obj.find(currentIB->Name());
+
+       if(itr == obj.end() || obj.isEmpty())
+           return;
+
+       auto _curDb = itr.value().toObject();
+
+       for (auto itr = _curDb.begin(); itr != _curDb.end(); ++itr) {
+
+           if(!itr.value().isObject())
+               return;
+
+           auto item = itr.value().toObject();
+
+           auto f = item.find("loadCache");
+           if(f != item.end()){
+               bool loadCache = f.value().toBool();
+               if(loadCache){
+                   filterManager->setFiltersCache(item);
+                   return;
+               }
+           }
+       }
+
+   }
+}
+
+void MainWindow::save_current_filter(const QString& uuid)
+{
+    if(filterManager->filterItems().size() == 0)
+        return;
+
+    QFile file("filters.json");
+    if (!file.open(QIODevice::ReadWrite))
+    {
+        return;
+    }
+
+    QJsonObject objFilters = filterManager->toJsonObject();
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    QJsonObject obj = doc.object();
+    QJsonObject opt;
+    if(obj.isEmpty()){
+        obj = QJsonObject();
+    }else{
+        auto itr = obj.find(currentIB->Name());
+
+        if(itr != obj.end())
+            opt = itr.value().toObject();
+        else
+            opt = QJsonObject();
+    }
+
+    opt.insert(uuid, objFilters);
+    obj.insert(currentIB->Name(), opt);
+
+    doc.setObject(obj);
+
+    file.write(QJsonDocument(doc).toJson(QJsonDocument::Indented));
+
+    file.close();
+
+}
+
 
 void MainWindow::on_btnOpenFilterDlg_clicked()
 {
@@ -244,6 +341,9 @@ void MainWindow::on_btnOpenFilterDlg_clicked()
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){
         on_toolBtnUpdate_clicked();
+        if(filterManager->saveCache()){
+
+        }
     }
 }
 
@@ -251,5 +351,148 @@ void MainWindow::on_btnOpenFilterDlg_clicked()
 void MainWindow::on_btnConnectDb_clicked()
 {
     on_mnuDbConnect_triggered();
+}
+
+
+void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
+{
+    QMap<QString, QString> row;
+
+    QModelIndex ind = ui->tableView->model()->index(index.row(), 0);
+    row.insert("date", ind.data().toString());
+    ind = ui->tableView->model()->index(index.row(), 1);
+    row.insert("app", ind.data().toString());
+    ind = ui->tableView->model()->index(index.row(), 2);
+    row.insert("event", ind.data().toString());
+    ind = ui->tableView->model()->index(index.row(), 3);
+    row.insert("comp", ind.data().toString());
+    ind = ui->tableView->model()->index(index.row(), 4);
+    row.insert("comment", ind.data().toString());
+    ind = ui->tableView->model()->index(index.row(), 5);
+    row.insert("metadata", ind.data().toString());
+    ind = ui->tableView->model()->index(index.row(), 6);
+    row.insert("user", ind.data().toString());
+
+    auto dlg = new DialogSelectedRow(row, this);
+    dlg->exec();
+    if(dlg->result() == QDialog::Accepted){
+
+    }
+}
+
+
+void MainWindow::on_btnResetFilter_clicked()
+{
+
+    for (auto itr : filterManager->filterItems()) {
+        itr->setUse(false);
+    }
+
+    on_toolBtnUpdate_clicked();
+}
+
+
+void MainWindow::on_btnSetFilterCurrentValue_clicked()
+{
+    if(!ui->tableView->currentIndex().isValid()){
+        return;
+    }
+
+    QModelIndex index = ui->tableView->currentIndex();
+    QString codeTable = options->get_code_table_from_alias_index(index.column());
+    QString field = options->get_field_name_from_alias_index(index.column());
+    QVariant value = index.data().toString();
+
+    LogEventColumn colIndex = (LogEventColumn)ColumnNames.indexOf(field);
+
+    if(codeTable.isEmpty()){
+        filterManager->setFilter(colIndex, ComparisonType::equals, value, true, value);
+        on_toolBtnUpdate_clicked();
+    }else{
+        QSqlQuery query(QString("select code from %1 where name = '%2';").arg(codeTable, value.toString()));
+        QStringList values{};
+        while (query.next()) {
+            QString _value = query.value(0).toString();
+            values.append(_value);
+        }
+        filterManager->setFilter(colIndex, ComparisonType::on_list, values, true, value);
+        on_toolBtnUpdate_clicked();
+    }
+
+    ;}
+
+void MainWindow::onUpdateFiltersOptions(const QString& uuid, const QString& name)
+{
+
+    filterManager->setNameOptions(name);
+    filterManager->setDatabaseName(currentIB->Name());
+
+    save_current_filter(uuid);
+
+}
+
+void MainWindow::onUpdateAllFilterOptions(QList<filter_options*>& values)
+{
+
+    QFile file("filters.json");
+    if (!file.open(QIODevice::ReadWrite))
+    {
+        return;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+
+    QJsonObject obj = doc.object();
+
+    QJsonObject opt;
+
+    bool find = false;
+
+    if(obj.isEmpty()){
+        obj = QJsonObject();
+        opt = QJsonObject();
+    }else{
+        auto itr = obj.find(currentIB->Name());
+
+        if(itr != obj.end())
+            opt = itr.value().toObject();
+        else
+            opt = QJsonObject();
+
+        find = false;
+    }
+
+    for (int i = 0; i < values.size(); ++i) {
+        QJsonObject curr;
+        if(opt.find(values.at(i)->uuid) != opt.end()){
+            curr = opt[values.at(i)->uuid].toObject();
+            curr["uuid"] = values.at(i)->uuid;
+            curr["saveCache"] = values.at(i)->save;
+            curr["nameOptions"] = values.at(i)->name;
+            curr["loadCache"] = values.at(i)->load;
+            opt[values.at(i)->uuid] = curr;
+        }else{
+            curr = QJsonObject();
+            curr.insert("uuid", values.at(i)->uuid);
+            curr.insert("saveCache", values.at(i)->save);
+            curr.insert("nameOptions", values.at(i)->name);
+            curr.insert("loadCache", values.at(i)->load);
+            opt.insert(values.at(i)->uuid, curr);
+        }
+
+    }
+
+    if(find)
+        obj.insert(currentIB->Name(), opt);
+    else
+        obj[currentIB->Name()] = opt;
+
+    doc = QJsonDocument();
+    doc.setObject(obj);
+
+    file.write(QJsonDocument(doc).toJson(QJsonDocument::Indented));
+
+    file.close();
+
 }
 

@@ -10,6 +10,8 @@
 #include <querybuilder.h>
 #include <QLabel>
 #include "filtermanager.h"
+#include <QStandardItemModel>
+#include <QStandardItem>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -54,19 +56,31 @@ private slots:
 
     void on_btnConnectDb_clicked();
 
+    void on_tableView_doubleClicked(const QModelIndex &index);
+
+    void on_btnResetFilter_clicked();
+
+    void on_btnSetFilterCurrentValue_clicked();
+
+    void onUpdateFiltersOptions(const QString& uuid, const QString& name);
+    void onUpdateAllFilterOptions(QList<filter_options*>& values);
+
 private:
     Ui::MainWindow *ui;
     standard_period period;
     QSqlDatabase dbLog;
     QSqlQueryModel * model;
-    //QSqlTableModel * m_model;
     Settings  * options;
     Infobases * currentIB;
     QLabel * infoBar;
+    //QStandardItemModel * _filterManagesModel;
 
     FilterManager * filterManager;
 
     void setColumnsHiden();
+    void read_filters_cache();
+
+    void save_current_filter(const QString& uuid);
 
 };
 #endif // MAINWINDOW_H

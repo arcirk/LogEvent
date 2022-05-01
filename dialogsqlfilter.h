@@ -37,6 +37,12 @@ private slots:
 
     void on_buttonBox_accepted();
 
+    void on_btnFilterItemAdd_clicked();
+
+    void on_btnSaveFilter_clicked();
+
+    void on_btnLoadFilter_clicked();
+
 private:
     Ui::DialogSqlFilter *ui;    
     FilterManager * _filterManager;

@@ -98,11 +98,16 @@ public:
     QMap<QString, Infobases*> get_infobases();
     QMap<QString,bool>& get_selected_cols();
 
+    QString get_code_table_from_alias_index(int index);
+    QString get_field_name_from_alias_index(int index);
+
 private:
     QString _root_path;
     QString _v8srvinfo;
     QMap<QString, Infobases*> info_bases;
     QMap<QString,bool> selectedCols;
+    QMap<int, QString> _code_tables_from_alias_index;
+    QMap<int, QString> _fields_from_alias_index;
 
     void set_v8srvinfo_logevent_catalog(const QString& val);
 //signals:

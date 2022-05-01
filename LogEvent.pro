@@ -13,9 +13,11 @@ CONFIG += c++11
 SOURCES += \
     dialogoptions.cpp \
     dialogselectcolumn.cpp \
+    dialogselectedrow.cpp \
     dialogselectinfobase.cpp \
     dialogselectitemsfilter.cpp \
     dialogsqlfilter.cpp \
+    dialogsvalefilter.cpp \
     electionlistsmodel.cpp \
     filteritem.cpp \
     filtermanager.cpp \
@@ -29,9 +31,11 @@ SOURCES += \
 HEADERS += \
     dialogoptions.h \
     dialogselectcolumn.h \
+    dialogselectedrow.h \
     dialogselectinfobase.h \
     dialogselectitemsfilter.h \
     dialogsqlfilter.h \
+    dialogsvalefilter.h \
     electionlistsmodel.h \
     filteritem.h \
     filtermanager.h \
@@ -44,9 +48,11 @@ HEADERS += \
 FORMS += \
     dialogoptions.ui \
     dialogselectcolumn.ui \
+    dialogselectedrow.ui \
     dialogselectinfobase.ui \
     dialogselectitemsfilter.ui \
     dialogsqlfilter.ui \
+    dialogsvalefilter.ui \
     mainwindow.ui \
     selectiondialog.ui
 

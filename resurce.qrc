@@ -7,5 +7,12 @@
         <file>img/itemDelete.png</file>
         <file>img/itemAdd</file>
         <file>img/extDatabase.png</file>
+        <file>img/resetFilter.png</file>
+        <file>img/filterCurrentValue.png</file>
+        <file>img/filterandsort.png</file>
+        <file>img/saveFilter.png</file>
+        <file>img/loadFilter.png</file>
+        <file>img/copy.png</file>
+        <file>img/select.png</file>
     </qresource>
 </RCC>

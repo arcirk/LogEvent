@@ -12,6 +12,7 @@
 #include <QToolButton>
 #include <QPushButton>
 #include <QDateTimeEdit>
+#include <dialogsvalefilter.h>
 
 DialogSqlFilter::DialogSqlFilter(QWidget *parent, FilterManager * filterManager) :
     QDialog(parent),
@@ -45,16 +46,25 @@ DialogSqlFilter::DialogSqlFilter(QWidget *parent, FilterManager * filterManager)
     _aliases.insert("Компьютер", "ComputerCodes");
     _aliases.insert("Метаданные", "MetadataCodes");
     _aliases.insert("Пользователь", "UserCodes");
+
     _aliasesField.insert("Приложение", "appCode");
     _aliasesField.insert("Событие", "eventCode");
     _aliasesField.insert("Компьютер", "computerCode");
     _aliasesField.insert("Метаданные", "metadataCodes");
     _aliasesField.insert("Пользователь", "userCode");
+    _aliasesField.insert("Комментарий", "comment");
+    _aliasesField.insert("Дата", "date");
+    _aliasesField.insert("date", "Дата");
+    _aliasesField.insert("comment", "Комментарий");
     _aliasesField.insert("appCode", "Приложение");
     _aliasesField.insert("eventCode", "Событие");
     _aliasesField.insert("computerCode", "Компьютер");
     _aliasesField.insert("metadataCodes", "Метаданные");
     _aliasesField.insert("userCode", "Пользователь");
+    _aliasesField.insert("rowID", "rowID");
+    _aliasesField.insert("dataPresentation", "dataPresentation");
+    _aliasesField.insert("data", "data");
+    _aliasesField.insert("dataType", "dataType");
 
     connect(this, &DialogSqlFilter::selectedFormShow, this, &DialogSqlFilter::onSelectedFormShow);
     connect(this, &DialogSqlFilter::itemComboCurrentIndexChanged, this, &DialogSqlFilter::onItemComboCurrentIndexChanged);
@@ -403,7 +413,6 @@ void DialogSqlFilter::on_buttonBox_accepted()
         QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("use" + QString::number(i));
 
         QWidget* pWidgetVal = ui->tableWidget->cellWidget(i, 3);
-        //QStringList lst = pWidgetVal->property("list").toStringList();
         QVariant mCode = pWidgetVal->property("listCode");
         QVariant vCode = pWidgetVal->property("code");
         QString code;
@@ -423,9 +432,15 @@ void DialogSqlFilter::on_buttonBox_accepted()
             isUse = checkBox->checkState() == Qt::CheckState::Checked;
 
         QString filed = ui->tableWidget->item(i, 1)->text();
+        if(filed.isEmpty()){
+            qDebug() << "error field name in " << i << " row";
+            continue;
+        }
+
         auto itr = _aliasesField.find(filed);
         if(itr != _aliasesField.end())
             filed = itr.value();
+
         LogEventColumn colIndex = (LogEventColumn)ColumnNames.indexOf(filed);
         QComboBox *combo = dynamic_cast<QComboBox*>( ui->tableWidget->cellWidget(i, 2) );
         ComparisonType compareType = ComparisonType::equals;
@@ -445,5 +460,35 @@ void DialogSqlFilter::on_buttonBox_accepted()
 
     }
 
+}
+
+
+void DialogSqlFilter::on_btnFilterItemAdd_clicked()
+{
+    if(ui->tableWidget->currentRow() >= 0){
+        ui->tableWidget->removeRow(ui->tableWidget->currentRow());
+    }
+}
+
+
+void DialogSqlFilter::on_btnSaveFilter_clicked()
+{
+    auto dlg = new DialogSvaleFilter(_filterManager, false, this);
+    dlg->setModal(true);
+    dlg->exec();
+    if(dlg->result() == QDialog::Accepted){
+
+    }
+}
+
+
+void DialogSqlFilter::on_btnLoadFilter_clicked()
+{
+    auto dlg = new DialogSvaleFilter(_filterManager, true, this);
+    dlg->setModal(true);
+    dlg->exec();
+    if(dlg->result() == QDialog::Accepted){
+
+    }
 }
 

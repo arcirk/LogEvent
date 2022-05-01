@@ -128,12 +128,29 @@ QMap<QString, bool>& Settings::get_selected_cols()
     return selectedCols;
 }
 
+QString Settings::get_code_table_from_alias_index(int index)
+{
+    auto itr = _code_tables_from_alias_index.find(index);
+    if(itr != _code_tables_from_alias_index.end())
+        return itr.value();
+    else
+        return "";
+
+}
+
+QString Settings::get_field_name_from_alias_index(int index)
+{
+    auto itr = _fields_from_alias_index.find(index);
+    if(itr != _fields_from_alias_index.end())
+        return itr.value();
+    else
+        return "";
+}
+
 void Settings::set_v8srvinfo_logevent_catalog(const QString &val)
 {
     _v8srvinfo = val;
 }
-
-
 
 
 void Settings::getSettings()
@@ -203,7 +220,22 @@ void Settings::saveSettings()
 Settings::Settings(QObject *parent)
     : QObject{parent}
 {
-    //getSettings();
+    _code_tables_from_alias_index.insert(1, "AppCodes");
+    _code_tables_from_alias_index.insert(2, "EventCodes");
+    _code_tables_from_alias_index.insert(3, "ComputerCodes");
+    _code_tables_from_alias_index.insert(5, "MetadataCodes");
+    _code_tables_from_alias_index.insert(6, "UserCodes");
+    _fields_from_alias_index.insert(0, "date");
+    _fields_from_alias_index.insert(1, "appCode");
+    _fields_from_alias_index.insert(2, "eventCode");
+    _fields_from_alias_index.insert(3, "computerCode");
+    _fields_from_alias_index.insert(4, "comment");
+    _fields_from_alias_index.insert(5, "metadataCodes");
+    _fields_from_alias_index.insert(6, "userCode");
+    _fields_from_alias_index.insert(7, "dataType");
+    _fields_from_alias_index.insert(9, "dataType");
+    _fields_from_alias_index.insert(9, "dataPresentation");
+    _fields_from_alias_index.insert(10, "rowID");
 }
 
 void Settings::get_server_info(const QString& dirsrvinfo)
