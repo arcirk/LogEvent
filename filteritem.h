@@ -4,6 +4,7 @@
 //#include <QObject>
 #include "settings.h"
 #include "querybuilder.h"
+#include <QUuid>
 
 class FilterItem
 {
@@ -18,6 +19,7 @@ public:
     void setAliasesValue(const QVariant& val);
     void setCompareType(ComparisonType type);
     void setUse(bool val);
+    void setUuid(const QUuid& val);
 
     LogEventColumn keyIndex();
     QVariant value();
@@ -25,6 +27,7 @@ public:
     QString key();
     ComparisonType compareType();
     bool use();
+    QUuid uuid();
 
 private:
     LogEventColumn _keyIndex;
@@ -33,6 +36,7 @@ private:
     QString _key;
     ComparisonType _compareType;
     bool _use;
+    QUuid _uuid;
 
 };
 

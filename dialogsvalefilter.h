@@ -20,10 +20,16 @@ public:
 
     void accept() override;
 
+    QUuid getResult();
+
 private slots:
     void on_btnAdd_clicked();
 
     void on_btnDelete_clicked();
+
+    void on_btnCopy_clicked();
+
+    void on_btnSelect_clicked();
 
 private:
     Ui::DialogSvaleFilter *ui;
@@ -33,6 +39,8 @@ private:
     void init_model();
 
     void add_filter_item(filter_options * _opt = nullptr);
+
+    QUuid _result;
 
 };
 

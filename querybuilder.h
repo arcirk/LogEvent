@@ -61,13 +61,16 @@ public:
 
     void execQuery(const QString& query);
 
+    void setLimit(int val);
+
 private:
     BuilderPeriod period;
     QMap<QString, QString> aliases;
     QList<FilerData> m_ListFiler;
     QString getDefaultQuery();
     QString m_queryText;
-
+    int _limit;
+    bool _isLimit;
 
 };
 

@@ -29,8 +29,13 @@ public:
     explicit FilterManager(QObject *parent = nullptr);
     ~FilterManager(){};
 
-    void setFilter(LogEventColumn  colIndex, ComparisonType compareType, const QVariant& vals, bool use, const QVariant& alias_vals);
-    QMap<LogEventColumn, FilterItem*>& filterItems();
+    void setFilter(LogEventColumn  colIndex,
+                   ComparisonType compareType,
+                   const QVariant& vals, bool use,
+                   const QVariant& alias_vals,
+                   const QUuid& id = QUuid::createUuid());
+
+    QMap<QUuid, FilterItem*>& filterItems();
 
     void setRandomUuid();
     void setUuid(const QString& uuid);
@@ -46,15 +51,18 @@ public:
     QJsonObject toJsonObject();
     void setFiltersCache(QJsonObject cache);
 
-    void init(const QString& uuid);
+
 
     void setSaveCache(bool val);
     bool saveCache();
     void setloadCache(bool val);
     bool loadCache();
 
+    void reset();
+    void load(const QUuid& uuid);
+
 private:
-    QMap<LogEventColumn, FilterItem*> _filterItems;
+    QMap<QUuid, FilterItem*> _filterItems;
     QString _databaseName;
     QString _nameOptions;
     QUuid _uuid;
@@ -65,6 +73,10 @@ signals:
 
     void updateFilterOptions(const QString& uuid, const QString& name);
     void updateAllFilterOptions(QList<filter_options*>& values);
+    void removeItemOptions(const QUuid& id);
+    void copyItemOptions(const QUuid& source, const QUuid& result, const QString& name);
+    void loadItemOptions(const QUuid& id);
+    void resetFilter();
 };
 
 #endif // FILTERMANAGER_H

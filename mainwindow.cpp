@@ -14,6 +14,7 @@
 #include "dialogsqlfilter.h"
 #include "dialogselectedrow.h"
 #include "dialogsvalefilter.h"
+#include "dialogabout.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -40,10 +41,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     infoBar = new QLabel(this);
     ui->statusbar->addWidget(infoBar);
-    infoBar->setText("Готово");
+    infoBar->setText("Не подключен.");
 
     connect(filterManager, &FilterManager::updateFilterOptions, this, &MainWindow::onUpdateFiltersOptions);
     connect(filterManager, &FilterManager::updateAllFilterOptions, this, &MainWindow::onUpdateAllFilterOptions);
+    connect(filterManager, &FilterManager::removeItemOptions, this, &MainWindow::onRemoveItemOptions);
+    connect(filterManager, &FilterManager::copyItemOptions, this, &MainWindow::onCopyItemOptions);
+    connect(filterManager, &FilterManager::loadItemOptions, this, &MainWindow::onLoadItemOptions);
 }
 
 MainWindow::~MainWindow()
@@ -68,8 +72,6 @@ void MainWindow::connect_database()
 
     dbPath = QDir::fromNativeSeparators(dbPath);
 
-    //qDebug() << dbPath;
-
     QFile dbFile(dbPath);
     if(!dbFile.exists()){
         QMessageBox::critical(this, "Ошибка", "Файл базы данных не найден!");
@@ -77,7 +79,7 @@ void MainWindow::connect_database()
     }
 
     if(dbLog.isOpen())
-        dbLog.close();
+        close_database();
 
     dbLog.setDatabaseName(dbPath);
     dbLog.open();
@@ -90,6 +92,7 @@ void MainWindow::connect_database()
 
     filterManager->setDatabaseName(currentIB->Name());
 
+    infoBar->setText(QString("Подключен: %1").arg(currentIB->Name()));
 }
 
 void MainWindow::on_dtEndDate_dateTimeChanged(const QDateTime &dateTime)
@@ -138,13 +141,17 @@ void MainWindow::on_toolBtnUpdate_clicked()
         }
     }
 
+    if(ui->chLimit->checkState() == Qt::CheckState::Checked)
+        mainModel->setLimit(ui->spinLimit->value());
+    else
+        mainModel->setLimit(-1);
+
     QString err;
     mainModel->build(err);
     ui->tableView->setModel(mainModel);
     qDebug() << qPrintable(mainModel->toString());
 
     setColumnsHiden();
-    //ui->tableView->resizeColumnsToContents();
 
     for (int i = 0; i < ui->tableView->model()->columnCount(); i++) {
 
@@ -177,7 +184,6 @@ void MainWindow::on_mnuDbConnect_triggered()
     dlg->setModal(true);
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){
-        //qDebug() << dlg->selectedItem;
         currentIB = options->get_infobases()[dlg->selectedItem];
         this->setWindowTitle("LogEvent:" + options->v8srvinfo_catalog() +  " (" + dlg->selectedItem + ")");
         connect_database();
@@ -192,7 +198,7 @@ void MainWindow::on_mnuOpenSrvinfo_triggered()
                                                  | QFileDialog::DontResolveSymlinks);
     if(dir != ""){
         if(dbLog.isOpen())
-            dbLog.close();
+           close_database();
 
         ui->tableView->setModel(nullptr);
 
@@ -204,13 +210,7 @@ void MainWindow::on_mnuOpenSrvinfo_triggered()
 
 void MainWindow::on_mnuDbClose_triggered()
 {
-    if(dbLog.isOpen()){
-        dbLog.close();
-        this->setWindowTitle(options->v8srvinfo_catalog());
-        ui->tableView->setModel(nullptr);
-    }else{
-        QMessageBox::critical(this, "Ошибка", "База данных не открыта!");
-    }
+    close_database();
 }
 
 void MainWindow::on_mnuColumnVisuble_triggered()
@@ -240,7 +240,7 @@ void MainWindow::setColumnsHiden()
     }
 }
 
-void MainWindow::read_filters_cache()
+void MainWindow::read_filters_cache(const QUuid& uuid)
 {
     if(!currentIB)
         return;
@@ -272,23 +272,28 @@ void MainWindow::read_filters_cache()
 
        auto _curDb = itr.value().toObject();
 
-       for (auto itr = _curDb.begin(); itr != _curDb.end(); ++itr) {
+       if(uuid.isNull()){
 
-           if(!itr.value().isObject())
-               return;
+           for (auto itr = _curDb.begin(); itr != _curDb.end(); ++itr) {
 
-           auto item = itr.value().toObject();
-
-           auto f = item.find("loadCache");
-           if(f != item.end()){
-               bool loadCache = f.value().toBool();
-               if(loadCache){
-                   filterManager->setFiltersCache(item);
+               if(!itr.value().isObject())
                    return;
+
+               auto item = itr.value().toObject();
+
+               auto f = item.find("loadCache");
+               if(f != item.end()){
+                   bool loadCache = f.value().toBool();
+                   if(loadCache){
+                       filterManager->setFiltersCache(item);
+                   }
                }
            }
+       }else{
+           auto itrOpt = _curDb.find(uuid.toString());
+           auto item = itrOpt.value().toObject();
+           filterManager->setFiltersCache(item);
        }
-
    }
 }
 
@@ -298,13 +303,15 @@ void MainWindow::save_current_filter(const QString& uuid)
         return;
 
     QFile file("filters.json");
-    if (!file.open(QIODevice::ReadWrite))
+    if (!file.open(QIODevice::ReadOnly))
     {
         return;
     }
 
     QJsonObject objFilters = filterManager->toJsonObject();
     QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+
     QJsonObject obj = doc.object();
     QJsonObject opt;
     if(obj.isEmpty()){
@@ -321,12 +328,28 @@ void MainWindow::save_current_filter(const QString& uuid)
     opt.insert(uuid, objFilters);
     obj.insert(currentIB->Name(), opt);
 
+    file.open(QIODevice::WriteOnly);
+
     doc.setObject(obj);
 
     file.write(QJsonDocument(doc).toJson(QJsonDocument::Indented));
 
     file.close();
 
+}
+
+void MainWindow::close_database()
+{
+    if(dbLog.isOpen()){
+        dbLog.close();
+        filterManager->reset();
+        this->setWindowTitle(options->v8srvinfo_catalog());
+        ui->tableView->setModel(nullptr);
+        infoBar->setText("Не подключен.");
+
+    }else{
+        QMessageBox::critical(this, "Ошибка", "База данных не открыта!");
+    }
 }
 
 
@@ -435,64 +458,169 @@ void MainWindow::onUpdateAllFilterOptions(QList<filter_options*>& values)
 {
 
     QFile file("filters.json");
-    if (!file.open(QIODevice::ReadWrite))
+    if (!file.open(QIODevice::ReadOnly))
     {
         return;
     }
 
     QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
 
-    QJsonObject obj = doc.object();
+    file.close();
 
-    QJsonObject opt;
+    QJsonObject objMain = doc.object();
 
-    bool find = false;
+    QJsonObject baseOptions;
 
-    if(obj.isEmpty()){
-        obj = QJsonObject();
-        opt = QJsonObject();
-    }else{
-        auto itr = obj.find(currentIB->Name());
 
-        if(itr != obj.end())
-            opt = itr.value().toObject();
-        else
-            opt = QJsonObject();
-
-        find = false;
+    if (objMain.find(currentIB->Name()) != objMain.end())
+        baseOptions = objMain[currentIB->Name()].toObject();
+    else{
+        baseOptions = QJsonObject();
+        objMain.insert(currentIB->Name(), baseOptions);
     }
 
     for (int i = 0; i < values.size(); ++i) {
-        QJsonObject curr;
-        if(opt.find(values.at(i)->uuid) != opt.end()){
-            curr = opt[values.at(i)->uuid].toObject();
-            curr["uuid"] = values.at(i)->uuid;
-            curr["saveCache"] = values.at(i)->save;
-            curr["nameOptions"] = values.at(i)->name;
-            curr["loadCache"] = values.at(i)->load;
-            opt[values.at(i)->uuid] = curr;
+        QJsonObject currOption;
+        if(baseOptions.find(values.at(i)->uuid) != baseOptions.end()){
+            currOption = baseOptions[values.at(i)->uuid].toObject();
+            currOption["saveCache"] = values.at(i)->save;
+            currOption["nameOptions"] = values.at(i)->name;
+            currOption["loadCache"] = values.at(i)->load;
+            baseOptions[values.at(i)->uuid] = currOption;
         }else{
-            curr = QJsonObject();
-            curr.insert("uuid", values.at(i)->uuid);
-            curr.insert("saveCache", values.at(i)->save);
-            curr.insert("nameOptions", values.at(i)->name);
-            curr.insert("loadCache", values.at(i)->load);
-            opt.insert(values.at(i)->uuid, curr);
+            currOption = QJsonObject();
+            currOption.insert("databaseName", currentIB->Name());
+            QJsonArray arr = QJsonArray();
+            currOption.insert("filterItems", arr);
+            currOption.insert("loadCache", values.at(i)->load);
+            currOption.insert("nameOptions", values.at(i)->name);
+            currOption.insert("saveCache", values.at(i)->save);
+            currOption.insert("uuid", values.at(i)->uuid);
+            baseOptions.insert(values.at(i)->uuid, currOption);
+        }
+
+        if(currOption["uuid"].toString() == filterManager->uuid().toString()){
+            filterManager->setObjectName(currOption["nameOptions"].toString());
+            filterManager->setSaveCache(currOption["saveCache"].toBool());
+            filterManager->setloadCache(currOption["loadCache"].toBool());
         }
 
     }
 
-    if(find)
-        obj.insert(currentIB->Name(), opt);
-    else
-        obj[currentIB->Name()] = opt;
+    objMain[currentIB->Name()] = baseOptions;
 
-    doc = QJsonDocument();
-    doc.setObject(obj);
-
-    file.write(QJsonDocument(doc).toJson(QJsonDocument::Indented));
+    file.open(QIODevice::WriteOnly);
+    file.write(QJsonDocument(objMain).toJson(QJsonDocument::Indented));
 
     file.close();
 
+}
+
+void MainWindow::onRemoveItemOptions(const QUuid &id)
+{
+    QFile file("filters.json");
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        return;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+
+    file.close();
+
+    QJsonObject objMain = doc.object();
+
+    QJsonObject baseOptions;
+
+
+    if (objMain.find(currentIB->Name()) != objMain.end())
+        baseOptions = objMain[currentIB->Name()].toObject();
+    else{
+        baseOptions = QJsonObject();
+        objMain.insert(currentIB->Name(), baseOptions);
+    }
+
+    auto itr = baseOptions.find(id.toString());
+    if(itr != baseOptions.end())
+        baseOptions.remove(id.toString());
+
+
+    objMain[currentIB->Name()] = baseOptions;
+
+    file.open(QIODevice::WriteOnly);
+    file.write(QJsonDocument(objMain).toJson(QJsonDocument::Indented));
+
+    file.close();
+
+}
+
+void MainWindow::onCopyItemOptions(const QUuid &source, const QUuid &result, const QString& name)
+{
+    QFile file("filters.json");
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        return;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+
+    file.close();
+
+    QJsonObject objMain = doc.object();
+
+    QJsonObject baseOptions;
+
+
+    if (objMain.find(currentIB->Name()) != objMain.end())
+        baseOptions = objMain[currentIB->Name()].toObject();
+    else{
+        baseOptions = QJsonObject();
+        objMain.insert(currentIB->Name(), baseOptions);
+    }
+
+    auto itr = baseOptions.find(source.toString());
+
+
+
+    if(itr != baseOptions.end()){
+        QJsonObject newObj = itr.value().toObject();
+        newObj["uuid"] = result.toString();
+        newObj["nameOptions"] = name;
+        baseOptions.insert(result.toString(), newObj);
+
+    }
+
+    objMain[currentIB->Name()] = baseOptions;
+
+    file.open(QIODevice::WriteOnly);
+    file.write(QJsonDocument(objMain).toJson(QJsonDocument::Indented));
+
+    file.close();
+}
+
+void MainWindow::onLoadItemOptions(const QUuid &id)
+{
+    read_filters_cache(id);
+    emit filterManager->resetFilter();
+}
+
+
+void MainWindow::on_btnCloseDb_clicked()
+{
+    close_database();
+}
+
+
+void MainWindow::on_chLimit_stateChanged(int arg1)
+{
+    ui->spinLimit->setEnabled(arg1);
+}
+
+
+void MainWindow::on_mnuAbout_triggered()
+{
+    auto dlg = new DialogAbout(this);
+    dlg->setModal(true);
+    dlg->exec();
 }
 

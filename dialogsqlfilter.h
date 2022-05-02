@@ -10,6 +10,7 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QStandardItemModel>
+#include <QUuid>
 
 namespace Ui {
 class DialogSqlFilter;
@@ -43,13 +44,15 @@ private slots:
 
     void on_btnLoadFilter_clicked();
 
+    void onResetFilter();
+
 private:
     Ui::DialogSqlFilter *ui;    
     FilterManager * _filterManager;
 
     QStandardItemModel * m_model;
 
-    void addFilter(const QString& filter_field);
+    void addFilter(const QString& filter_field, const QUuid& uuid = QUuid::createUuid());
 
     QMap<QString, ComparisonType> _compareType;
     QMap<QString, QString> _aliases;

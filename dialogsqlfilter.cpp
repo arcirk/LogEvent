@@ -23,11 +23,13 @@ DialogSqlFilter::DialogSqlFilter(QWidget *parent, FilterManager * filterManager)
     _filterManager = filterManager;
 
     QTableWidget* table = ui->tableWidget;
-    table->setColumnCount(4);
+    table->setColumnCount(5);
     table->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
     table->setHorizontalHeaderItem(1, new QTableWidgetItem("Поле"));
     table->setHorizontalHeaderItem(2, new QTableWidgetItem("Вид сравнения"));
     table->setHorizontalHeaderItem(3, new QTableWidgetItem("Значение"));
+    table->setHorizontalHeaderItem(4, new QTableWidgetItem("Идентификатор"));
+    table->setColumnHidden(4, true);
     table->resizeColumnsToContents();
 
     ui->toolBarFilter->addStretch();
@@ -70,6 +72,13 @@ DialogSqlFilter::DialogSqlFilter(QWidget *parent, FilterManager * filterManager)
     connect(this, &DialogSqlFilter::itemComboCurrentIndexChanged, this, &DialogSqlFilter::onItemComboCurrentIndexChanged);
 
     loadFilterItems();
+
+    if(filterManager->loadCache() && !filterManager->nameOptions().isEmpty())
+        setWindowTitle(QString("Настройка отборов (%1)").arg(filterManager->nameOptions()));
+
+
+    connect(_filterManager, &FilterManager::resetFilter, this, &DialogSqlFilter::onResetFilter);
+
 }
 
 DialogSqlFilter::~DialogSqlFilter()
@@ -77,7 +86,7 @@ DialogSqlFilter::~DialogSqlFilter()
     delete ui;
 }
 
-void DialogSqlFilter::addFilter(const QString &filter_field)
+void DialogSqlFilter::addFilter(const QString &filter_field, const QUuid& uuid)
 {
 
     QTableWidget * table = ui->tableWidget;
@@ -88,6 +97,9 @@ void DialogSqlFilter::addFilter(const QString &filter_field)
 
     QTableWidgetItem *pItem = new QTableWidgetItem();
     table->setItem(table->rowCount()-1,0,pItem);
+
+    QTableWidgetItem *pItemUuid = new QTableWidgetItem(uuid.toString());
+    table->setItem(table->rowCount()-1,4,pItemUuid);
 
     QWidget *pWidget = new QWidget();
     QCheckBox *pCheckBox = new QCheckBox();
@@ -170,6 +182,8 @@ void DialogSqlFilter::addFilter(const QString &filter_field)
 
 void DialogSqlFilter::loadFilterItems()
 {
+    ui->tableWidget->setRowCount(0);
+
     int row = 0;
     for (auto itr : _filterManager->filterItems()) {
         QString field;
@@ -177,7 +191,7 @@ void DialogSqlFilter::loadFilterItems()
         if(itrField != _aliasesField.end())
             field = itrField.value();
 
-        addFilter(field);
+        addFilter(field, itr->uuid());
 
         QWidget* pWidget = ui->tableWidget->cellWidget(row, 0);
         QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("use" + QString::number(row));
@@ -456,17 +470,21 @@ void DialogSqlFilter::on_buttonBox_accepted()
 
         QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(i));
 
-        _filterManager->setFilter(colIndex, compareType, value, isUse, line->text());
+        QTableWidgetItem * item = ui->tableWidget->item(i, 4);
+
+        _filterManager->setFilter(colIndex, compareType, value, isUse, line->text(), QUuid::fromString(item->text()));
 
     }
 
 }
 
-
 void DialogSqlFilter::on_btnFilterItemAdd_clicked()
 {
     if(ui->tableWidget->currentRow() >= 0){
         ui->tableWidget->removeRow(ui->tableWidget->currentRow());
+        if(ui->tableWidget->rowCount() > 0){
+            ui->tableWidget->setCurrentCell(0,0);
+        }
     }
 }
 
@@ -477,7 +495,8 @@ void DialogSqlFilter::on_btnSaveFilter_clicked()
     dlg->setModal(true);
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){
-
+        if(_filterManager->loadCache() && !_filterManager->nameOptions().isEmpty())
+            setWindowTitle(QString("Настройка отборов (%1)").arg(_filterManager->nameOptions()));
     }
 }
 
@@ -488,7 +507,16 @@ void DialogSqlFilter::on_btnLoadFilter_clicked()
     dlg->setModal(true);
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){
-
+        QUuid source = dlg->getResult();
+        _filterManager->load(source);
     }
+}
+
+void DialogSqlFilter::onResetFilter()
+{
+    loadFilterItems();
+
+    if(_filterManager->loadCache() && !_filterManager->nameOptions().isEmpty())
+        setWindowTitle(QString("Настройка отборов (%1)").arg(_filterManager->nameOptions()));
 }
 

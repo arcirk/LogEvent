@@ -14,5 +14,7 @@
         <file>img/loadFilter.png</file>
         <file>img/copy.png</file>
         <file>img/select.png</file>
+        <file>img/closeDatabase.png</file>
+        <file>img/db_close.png</file>
     </qresource>
 </RCC>

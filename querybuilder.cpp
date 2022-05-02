@@ -3,7 +3,8 @@
 QueryBuilder::QueryBuilder(QObject *parent)
     : QSqlQueryModel{parent}
 {
-
+    _isLimit = false;
+    _limit = 0;
 }
 
 void QueryBuilder::set_period(const QDateTime &sdate, const QDateTime &edate)
@@ -65,10 +66,13 @@ void QueryBuilder::build(QString& err)
                 }
             }
             _where.append(")");
-            //_where.append(sz_value);
+
         }
     }
 
+    if(_isLimit){
+        _where.append(QString(" LIMIT %1").arg(_limit));
+    }
     _query.append(_where + ";");
     m_queryText = _query;
     setQuery(_query);
@@ -115,5 +119,15 @@ QString QueryBuilder::toString() {
 void QueryBuilder::execQuery(const QString &query)
 {
     setQuery(query);
+
+}
+
+void QueryBuilder::setLimit(int val)
+{
+    _limit = val;
+    if(_limit > 0)
+        _isLimit = true;
+    else
+        _isLimit = false;
 
 }

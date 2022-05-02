@@ -12,7 +12,11 @@ FilterManager::FilterManager(QObject *parent) :
     _loadCache = false;
 }
 
-void FilterManager::setFilter(LogEventColumn colIndex, ComparisonType compareType, const QVariant &vals, bool use, const QVariant& alias_vals)
+void FilterManager::setFilter(LogEventColumn colIndex,
+                              ComparisonType compareType,
+                              const QVariant &vals, bool use,
+                              const QVariant& alias_vals,
+                              const QUuid& id)
 {
     auto filter = new FilterItem();
     filter->setKey(colIndex);
@@ -20,11 +24,16 @@ void FilterManager::setFilter(LogEventColumn colIndex, ComparisonType compareTyp
     filter->setValue(vals);
     filter->setUse(use);
     filter->setAliasesValue(alias_vals);
-    _filterItems.insert(colIndex, filter);
+    filter->setUuid(id);
+    _filterItems.insert(id, filter);
+
+    if(_saveCache){
+        emit updateFilterOptions(_uuid.toString(), nameOptions());
+    }
 
 }
 
-QMap<LogEventColumn, FilterItem *>& FilterManager::filterItems()
+QMap<QUuid, FilterItem *>& FilterManager::filterItems()
 {
     return _filterItems;
 }
@@ -89,6 +98,7 @@ QJsonObject FilterManager::toJsonObject()
         item.insert("keyIndex", itr->keyIndex());
         item.insert("compareType", itr->compareType());
         item.insert("use", itr->use());
+        item.insert("uuid", itr->uuid().toString());
         if(itr->value().userType() == QMetaType::QStringList){
             QStringList val = itr->value().toStringList();
             auto arrVal = QJsonArray();
@@ -134,10 +144,13 @@ void FilterManager::setFiltersCache(QJsonObject cache)
         setNameOptions(itr.value().toString());
     itr = cache.find("saveCache");
     if(itr != cache.end())
-        setloadCache(itr.value().toBool());
+        setSaveCache(itr.value().toBool());
     itr = cache.find("uuid");
     if(itr != cache.end())
         setUuid(itr.value().toString());
+    itr = cache.find("databaseName");
+    if(itr != cache.end())
+        setDatabaseName(itr.value().toString());
 
     itr = cache.find("filterItems");
 
@@ -153,7 +166,7 @@ void FilterManager::setFiltersCache(QJsonObject cache)
             QJsonObject _obj = obj->toObject();
             FilterItem * item = new FilterItem();
             itr = _obj.find("aliasesValue");
-            if(itr != cache.end()){
+            if(itr != _obj.end()){
                 if(itr.value().isString())
                     item->setAliasesValue(itr.value().toString());
                 else if (itr.value().isArray()){
@@ -165,16 +178,21 @@ void FilterManager::setFiltersCache(QJsonObject cache)
                 }
             }
             itr = _obj.find("compareType");
-            if(itr != cache.end())
+            if(itr != _obj.end())
                 item->setCompareType((ComparisonType)itr.value().toInt());
             itr = _obj.find("key");
-            if(itr != cache.end())
+            if(itr != _obj.end())
                 item->setKey((LogEventColumn)ColumnNames.indexOf(itr.value().toString()));
             itr = _obj.find("use");
-            if(itr != cache.end())
+            if(itr != _obj.end())
                 item->setUse(itr.value().toBool());
+            itr = _obj.find("uuid");
+            if(itr != _obj.end())
+                item->setUuid(QUuid::fromString(itr.value().toString()));
+            else
+               item->setUuid(QUuid::createUuid());
             itr = _obj.find("value");
-            if(itr != cache.end()){
+            if(itr != _obj.end()){
                 if(itr.value().isString())
                     item->setValue(itr.value().toString());
                 else if (itr.value().isArray()){
@@ -187,14 +205,15 @@ void FilterManager::setFiltersCache(QJsonObject cache)
 
             }
 
-            _filterItems.insert(item->keyIndex(), item);
+            _filterItems.insert(item->uuid(), item);
         }
     }
 }
 
-void FilterManager::init(const QString &uuid)
+void FilterManager::load(const QUuid &uuid)
 {
-
+    reset();
+    emit loadItemOptions(uuid);
 }
 
 void FilterManager::setSaveCache(bool val)
@@ -215,4 +234,14 @@ void FilterManager::setloadCache(bool val)
 bool FilterManager::loadCache()
 {
     return _loadCache;
+}
+
+void FilterManager::reset()
+{
+    _saveCache = false;
+    _loadCache = false;
+    _databaseName = "";
+    _nameOptions = "";
+    _filterItems.clear();
+    setRandomUuid();
 }

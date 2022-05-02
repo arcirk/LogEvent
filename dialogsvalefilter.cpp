@@ -1,30 +1,35 @@
 #include "dialogsvalefilter.h"
 #include "ui_dialogsvalefilter.h"
-//#include <QTableWidgetItem>
 #include <QUuid>
 #include <QCheckBox>
 #include <QList>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMessageBox>
 
 DialogSvaleFilter::DialogSvaleFilter(FilterManager * manager, bool SelectedMode, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogSvaleFilter)
 {
     ui->setupUi(this);
-    if(!SelectedMode)
+    if(!SelectedMode){
         ui->btnSelect->setVisible(false);
+        setWindowTitle("Настройки отборов");
+    }
     else{
-        ui->btnAdd->setEnabled(false);
-        ui->btnCopy->setEnabled(false);
-        ui->btnDelete->setEnabled(false);
+        ui->btnAdd->setVisible(false);
+        ui->btnCopy->setVisible(false);
+        ui->btnDelete->setVisible(false);
+        ui->buttonBox->setVisible(false);
+        setWindowTitle("Настройки отборов (Выбор)");
     }
 
     _selectedMode = SelectedMode;
     _manager = manager;
 
     init_model();
+
 }
 
 DialogSvaleFilter::~DialogSvaleFilter()
@@ -67,11 +72,18 @@ void DialogSvaleFilter::accept()
             fo->uuid = uuid;
 
             values.append(fo);
+            if(uuid == _manager->uuid().toString())
+                _manager->setNameOptions(name);
         }
         emit _manager->updateAllFilterOptions(values);
     }
 
     QDialog::accept();
+}
+
+QUuid DialogSvaleFilter::getResult()
+{
+    return _result;
 }
 
 void DialogSvaleFilter::on_btnAdd_clicked()
@@ -89,6 +101,7 @@ void DialogSvaleFilter::init_model()
     table->setHorizontalHeaderItem(1, new QTableWidgetItem("Сохранять"));
     table->setHorizontalHeaderItem(2, new QTableWidgetItem("Востанавливать"));
     table->setHorizontalHeaderItem(3, new QTableWidgetItem("Идентификатор"));
+    table->setColumnHidden(3, true);
     table->resizeColumnsToContents();
 
     ui->horizontalLayout->addStretch();
@@ -213,6 +226,68 @@ void DialogSvaleFilter::on_btnDelete_clicked()
     if(ui->tableWidget->currentRow() < 0)
         return;
 
+    QTableWidgetItem * item = ui->tableWidget->item(ui->tableWidget->currentRow(), 3);
+    emit _manager->removeItemOptions(QUuid::fromString(item->text()));
+
     ui->tableWidget->removeRow(ui->tableWidget->currentRow());
+}
+
+
+void DialogSvaleFilter::on_btnCopy_clicked()
+{
+    if(ui->tableWidget->currentRow() < 0){
+         QMessageBox::critical(this, "Ошибка", "Не выбран элемент!");
+    }
+
+    int row = ui->tableWidget->currentRow();
+
+    QTableWidgetItem * item = ui->tableWidget->item(row, 0);
+
+    filter_options *_opt = new filter_options();
+    QString name = item->text() + " 1";
+    _opt->name = name;
+
+    QWidget* pWidget = ui->tableWidget->cellWidget(row, 1);
+    QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("save" + QString::number(row));
+    if(checkBox){
+        if(checkBox->checkState() == Qt::CheckState::Checked)
+            _opt->save = true;
+        else
+            _opt->save = false;
+    }
+    pWidget = ui->tableWidget->cellWidget(row, 2);
+    checkBox = pWidget->findChild<QCheckBox*>("load" + QString::number(row));
+    if(checkBox){
+        if(checkBox->checkState() == Qt::CheckState::Checked)
+            _opt->load = true;
+        else
+            _opt->load = false;
+    }
+
+    QUuid result = QUuid::createUuid();
+
+    item = ui->tableWidget->item(row, 3);
+    QUuid source = QUuid::fromString(item->text());
+
+    _opt->uuid = result.toString();
+
+    add_filter_item(_opt);
+
+    emit _manager->copyItemOptions(source, result, name);
+
+}
+
+
+void DialogSvaleFilter::on_btnSelect_clicked()
+{
+    if(ui->tableWidget->currentRow() < 0){
+         QMessageBox::critical(this, "Ошибка", "Не выбран элемент!");
+    }
+    int row = ui->tableWidget->currentRow();
+
+    auto item = ui->tableWidget->item(row, 3);
+    _result = QUuid::fromString(item->text());
+
+    accept();
 }
 

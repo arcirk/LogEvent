@@ -31,6 +31,11 @@ void FilterItem::setUse(bool val)
     _use = val;
 }
 
+void FilterItem::setUuid(const QUuid &val)
+{
+    _uuid = val;
+}
+
 LogEventColumn FilterItem::keyIndex()
 {
     return _keyIndex;
@@ -59,4 +64,9 @@ ComparisonType FilterItem::compareType()
 bool FilterItem::use()
 {
     return _use;
+}
+
+QUuid FilterItem::uuid()
+{
+    return _uuid;
 }

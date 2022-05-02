@@ -11,6 +11,7 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    dialogabout.cpp \
     dialogoptions.cpp \
     dialogselectcolumn.cpp \
     dialogselectedrow.cpp \
@@ -29,6 +30,7 @@ SOURCES += \
     settings.cpp
 
 HEADERS += \
+    dialogabout.h \
     dialogoptions.h \
     dialogselectcolumn.h \
     dialogselectedrow.h \
@@ -46,6 +48,7 @@ HEADERS += \
     settings.h
 
 FORMS += \
+    dialogabout.ui \
     dialogoptions.ui \
     dialogselectcolumn.ui \
     dialogselectedrow.ui \

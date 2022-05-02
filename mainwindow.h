@@ -31,7 +31,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void connect_database();
+
 
 private slots:
     void on_dtEndDate_dateTimeChanged(const QDateTime &dateTime);
@@ -64,6 +64,14 @@ private slots:
 
     void onUpdateFiltersOptions(const QString& uuid, const QString& name);
     void onUpdateAllFilterOptions(QList<filter_options*>& values);
+    void onRemoveItemOptions(const QUuid& id);
+    void onCopyItemOptions(const QUuid& source, const QUuid& result, const QString& name);
+    void onLoadItemOptions(const QUuid& id);
+    void on_btnCloseDb_clicked();
+
+    void on_chLimit_stateChanged(int arg1);
+
+    void on_mnuAbout_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -73,14 +81,12 @@ private:
     Settings  * options;
     Infobases * currentIB;
     QLabel * infoBar;
-    //QStandardItemModel * _filterManagesModel;
-
     FilterManager * filterManager;
 
     void setColumnsHiden();
-    void read_filters_cache();
-
+    void read_filters_cache(const QUuid& uuid = QUuid{});
     void save_current_filter(const QString& uuid);
-
+    void connect_database();
+    void close_database();
 };
 #endif // MAINWINDOW_H
