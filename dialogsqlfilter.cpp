@@ -12,7 +12,7 @@
 #include <QToolButton>
 #include <QPushButton>
 #include <QDateTimeEdit>
-#include <dialogsvalefilter.h>
+#include <dialogsavefilter.h>
 
 DialogSqlFilter::DialogSqlFilter(QWidget *parent, FilterManager * filterManager) :
     QDialog(parent),
@@ -491,7 +491,7 @@ void DialogSqlFilter::on_btnFilterItemAdd_clicked()
 
 void DialogSqlFilter::on_btnSaveFilter_clicked()
 {
-    auto dlg = new DialogSvaleFilter(_filterManager, false, this);
+    auto dlg = new DialogSaveFilter(_filterManager, false, this);
     dlg->setModal(true);
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){
@@ -503,7 +503,7 @@ void DialogSqlFilter::on_btnSaveFilter_clicked()
 
 void DialogSqlFilter::on_btnLoadFilter_clicked()
 {
-    auto dlg = new DialogSvaleFilter(_filterManager, true, this);
+    auto dlg = new DialogSaveFilter(_filterManager, true, this);
     dlg->setModal(true);
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){

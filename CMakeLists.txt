@@ -44,6 +44,22 @@ set(PROJECT_SOURCES
         dialogselectitemsfilter.cpp
         dialogselectitemsfilter.h
         dialogselectitemsfilter.ui
+        dialogabout.cpp
+        dialogabout.h
+        dialogabout.ui
+        dialogselectedrow.cpp
+        dialogselectedrow.h
+        dialogselectedrow.ui
+        dialogsavefilter.cpp
+        dialogsavefilter.h
+        dialogsavefilter.ui
+        filteritem.cpp
+        filteritem.h
+        filtermanager.cpp
+        filtermanager.h
+        selectiondialog.cpp
+        selectiondialog.h
+        selectiondialog.ui
         )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

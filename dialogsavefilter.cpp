@@ -1,5 +1,5 @@
-#include "dialogsvalefilter.h"
-#include "ui_dialogsvalefilter.h"
+#include "dialogsavefilter.h"
+#include "ui_dialogsavefilter.h"
 #include <QUuid>
 #include <QCheckBox>
 #include <QList>
@@ -8,9 +8,9 @@
 #include <QJsonObject>
 #include <QMessageBox>
 
-DialogSvaleFilter::DialogSvaleFilter(FilterManager * manager, bool SelectedMode, QWidget *parent) :
+DialogSaveFilter::DialogSaveFilter(FilterManager * manager, bool SelectedMode, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::DialogSvaleFilter)
+    ui(new Ui::DialogSaveFilter)
 {
     ui->setupUi(this);
     if(!SelectedMode){
@@ -32,12 +32,12 @@ DialogSvaleFilter::DialogSvaleFilter(FilterManager * manager, bool SelectedMode,
 
 }
 
-DialogSvaleFilter::~DialogSvaleFilter()
+DialogSaveFilter::~DialogSaveFilter()
 {
     delete ui;
 }
 
-void DialogSvaleFilter::accept()
+void DialogSaveFilter::accept()
 {
 
     if(!_selectedMode){
@@ -81,17 +81,17 @@ void DialogSvaleFilter::accept()
     QDialog::accept();
 }
 
-QUuid DialogSvaleFilter::getResult()
+QUuid DialogSaveFilter::getResult()
 {
     return _result;
 }
 
-void DialogSvaleFilter::on_btnAdd_clicked()
+void DialogSaveFilter::on_btnAdd_clicked()
 {
     add_filter_item();
 }
 
-void DialogSvaleFilter::init_model()
+void DialogSaveFilter::init_model()
 {
 
     QTableWidget* table = ui->tableWidget;
@@ -164,7 +164,7 @@ void DialogSvaleFilter::init_model()
     }
 }
 
-void DialogSvaleFilter::add_filter_item(filter_options *_opt)
+void DialogSaveFilter::add_filter_item(filter_options *_opt)
 {
     QTableWidget* table = ui->tableWidget;
     table->setRowCount(table->rowCount() + 1);
@@ -221,7 +221,7 @@ void DialogSvaleFilter::add_filter_item(filter_options *_opt)
 }
 
 
-void DialogSvaleFilter::on_btnDelete_clicked()
+void DialogSaveFilter::on_btnDelete_clicked()
 {
     if(ui->tableWidget->currentRow() < 0)
         return;
@@ -233,7 +233,7 @@ void DialogSvaleFilter::on_btnDelete_clicked()
 }
 
 
-void DialogSvaleFilter::on_btnCopy_clicked()
+void DialogSaveFilter::on_btnCopy_clicked()
 {
     if(ui->tableWidget->currentRow() < 0){
          QMessageBox::critical(this, "Ошибка", "Не выбран элемент!");
@@ -278,7 +278,7 @@ void DialogSvaleFilter::on_btnCopy_clicked()
 }
 
 
-void DialogSvaleFilter::on_btnSelect_clicked()
+void DialogSaveFilter::on_btnSelect_clicked()
 {
     if(ui->tableWidget->currentRow() < 0){
          QMessageBox::critical(this, "Ошибка", "Не выбран элемент!");

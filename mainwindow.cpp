@@ -13,7 +13,6 @@
 #include "dialogselectcolumn.h"
 #include "dialogsqlfilter.h"
 #include "dialogselectedrow.h"
-#include "dialogsvalefilter.h"
 #include "dialogabout.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -129,7 +128,7 @@ void MainWindow::on_toolBtnUpdate_clicked()
         return;
     }
 
-    QueryBuilder * mainModel = new QueryBuilder();
+    auto * mainModel = new QueryBuilder();
     mainModel->set_period(ui->dtStaretDate->dateTime(), ui->dtEndDate->dateTime());
     for (auto itr  : filterManager->filterItems()) {
         if(itr->use()){
@@ -151,7 +150,7 @@ void MainWindow::on_toolBtnUpdate_clicked()
     ui->tableView->setModel(mainModel);
     qDebug() << qPrintable(mainModel->toString());
 
-    setColumnsHiden();
+    setColumnsHidden();
 
     for (int i = 0; i < ui->tableView->model()->columnCount(); i++) {
 
@@ -220,12 +219,12 @@ void MainWindow::on_mnuColumnVisuble_triggered()
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){
         options->saveSettings();
-        setColumnsHiden();
+        setColumnsHidden();
     }
 
 }
 
-void MainWindow::setColumnsHiden()
+void MainWindow::setColumnsHidden()
 {
     if(ui->tableView->model()){
         qDebug() << ui->tableView->model()->columnCount();
@@ -299,23 +298,33 @@ void MainWindow::read_filters_cache(const QUuid& uuid)
 
 void MainWindow::save_current_filter(const QString& uuid)
 {
-    if(filterManager->filterItems().size() == 0)
-        return;
+//    if(filterManager->filterItems().size() == 0)
+//        return;
 
     QFile file("filters.json");
+    bool exists = file.exists();
     if (!file.open(QIODevice::ReadOnly))
     {
-        return;
+        //return;
     }
 
+    if(filterManager->uuid().toString() != uuid)
+        filterManager->setUuid(uuid);
+
     QJsonObject objFilters = filterManager->toJsonObject();
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    file.close();
+    QJsonDocument doc;
+    if(exists){
+        doc = QJsonDocument::fromJson(file.readAll());
+        file.close();
+    }else
+        doc = QJsonDocument();
+
 
     QJsonObject obj = doc.object();
     QJsonObject opt;
     if(obj.isEmpty()){
         obj = QJsonObject();
+        opt = QJsonObject();
     }else{
         auto itr = obj.find(currentIB->Name());
 

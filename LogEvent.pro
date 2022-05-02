@@ -1,6 +1,5 @@
 QT       += core gui
 QT += sql
-#QT += axcontainer
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -18,7 +17,7 @@ SOURCES += \
     dialogselectinfobase.cpp \
     dialogselectitemsfilter.cpp \
     dialogsqlfilter.cpp \
-    dialogsvalefilter.cpp \
+    dialogsavefilter.cpp \
     electionlistsmodel.cpp \
     filteritem.cpp \
     filtermanager.cpp \
@@ -37,7 +36,7 @@ HEADERS += \
     dialogselectinfobase.h \
     dialogselectitemsfilter.h \
     dialogsqlfilter.h \
-    dialogsvalefilter.h \
+    dialogsavefilter.h \
     electionlistsmodel.h \
     filteritem.h \
     filtermanager.h \
@@ -55,7 +54,7 @@ FORMS += \
     dialogselectinfobase.ui \
     dialogselectitemsfilter.ui \
     dialogsqlfilter.ui \
-    dialogsvalefilter.ui \
+    dialogsavefilter.ui \
     mainwindow.ui \
     selectiondialog.ui
 

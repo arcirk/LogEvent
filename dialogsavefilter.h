@@ -7,16 +7,16 @@
 #include <QTableWidgetItem>
 
 namespace Ui {
-class DialogSvaleFilter;
+class DialogSaveFilter;
 }
 
-class DialogSvaleFilter : public QDialog
+class DialogSaveFilter : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DialogSvaleFilter(FilterManager * manager, bool SelectedMode, QWidget *parent = nullptr);
-    ~DialogSvaleFilter();
+    explicit DialogSaveFilter(FilterManager * manager, bool SelectedMode, QWidget *parent = nullptr);
+    ~DialogSaveFilter();
 
     void accept() override;
 
@@ -32,7 +32,7 @@ private slots:
     void on_btnSelect_clicked();
 
 private:
-    Ui::DialogSvaleFilter *ui;
+    Ui::DialogSaveFilter *ui;
     bool _selectedMode;
     FilterManager * _manager;
 

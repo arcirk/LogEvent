@@ -83,7 +83,7 @@ private:
     QLabel * infoBar;
     FilterManager * filterManager;
 
-    void setColumnsHiden();
+    void setColumnsHidden();
     void read_filters_cache(const QUuid& uuid = QUuid{});
     void save_current_filter(const QString& uuid);
     void connect_database();
