@@ -14,6 +14,7 @@
 #include "dialogsqlfilter.h"
 #include "dialogselectedrow.h"
 #include "dialogabout.h"
+#include <QSortFilterProxyModel>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -118,6 +119,8 @@ void MainWindow::on_mnuExit_triggered()
 void MainWindow::on_toolBtnUpdate_clicked()
 {
 
+    //QMessageBox::critical(this, "offsetFromUtc", QString::number(QDateTime::currentDateTime().offsetFromUtc()));
+
     if(!dbLog.isOpen()){
         QMessageBox::critical(this, "Ошибка", "База данных не открыта!");
         return;
@@ -147,8 +150,15 @@ void MainWindow::on_toolBtnUpdate_clicked()
 
     QString err;
     mainModel->build(err);
-    ui->tableView->setModel(mainModel);
-    qDebug() << qPrintable(mainModel->toString());
+
+    QSortFilterProxyModel * proxyModel = new QSortFilterProxyModel();
+    proxyModel->setSourceModel( mainModel );
+
+    ui->tableView->setModel(proxyModel);
+
+    ui->tableView->sortByColumn(0, Qt::AscendingOrder);
+
+    //qDebug() << qPrintable(mainModel->toString());
 
     setColumnsHidden();
 

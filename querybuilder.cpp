@@ -7,6 +7,16 @@ QueryBuilder::QueryBuilder(QObject *parent)
     _limit = 0;
 }
 
+//QVariant QueryBuilder::data(const QModelIndex &item, int role) const
+//{
+//    if (item.column() == 0) {
+//        QString date = QSqlQueryModel::data(item, role).toString();
+//        QDateTime dt = QDateTime::fromString(date);
+//        //return QDateTime::fromString(date);
+//    }
+//    return QSqlQueryModel::data(item, role);
+//}
+
 void QueryBuilder::set_period(const QDateTime &sdate, const QDateTime &edate)
 {
     period.startDate = sdate;
@@ -25,8 +35,21 @@ void QueryBuilder::build(QString& err)
     }
 
     QString _query = getDefaultQuery();
+    //_query = _query.replace("offset", QString::number(QDateTime::currentDateTime().offsetFromUtc()));
+    qint64 offset = QDateTime::currentDateTime().offsetFromUtc() - 18000;// 3*60*60;
+    _query = _query.replace("offset", QString::number(offset));
+
+    qDebug() << QDateTime::currentDateTime();
+    qDebug() << QDateTime::currentDateTimeUtc();
+
+//    qDebug() << QDateTime::currentDateTime().offsetFromUtc();
+    // qDebug() << QDateTime::currentDateTime().timeZone();
+
     //QString _where = QString("\nWHERE log.date between (%1 AND %2)").arg(QString::number(period.startdate_full_seconds()), QString::number(period.enddate_full_seconds()));
+
     QString _where = QString("\nWHERE log.date >= %1 AND log.date <= %2").arg(QString::number(period.startdate_full_seconds()), QString::number(period.enddate_full_seconds()));
+
+
 
     for (auto itr = m_ListFiler.begin(); itr != m_ListFiler.end(); ++itr) {
 
@@ -87,7 +110,7 @@ void QueryBuilder::addFilter(FilerData filter)
 
 QString QueryBuilder::getDefaultQuery()
 {
-    return "SELECT CASE WHEN log.date = 0 THEN '0001-01-01 00.00.00' ELSE datetime(log.date / 10000 - 62135578800, 'unixepoch') END AS Дата,"
+    return "SELECT CASE WHEN log.date = 0 THEN '0001-01-01 00.00.00' ELSE datetime((log.date / 10000 - 62135578800) + offset, 'unixepoch') END AS Дата,"
             "\nacodes.name AS Приложение,"
             "\necodes.name AS Событие,"
             "\npkcodes.name AS Компьютер,"

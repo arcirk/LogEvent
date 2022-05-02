@@ -63,11 +63,22 @@ set(PROJECT_SOURCES
         selectiondialog.ui
         )
 
+set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/logevent.rc")
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(LogEvent
-            MANUAL_FINALIZATION
-            ${PROJECT_SOURCES}
-            )
+
+    if(WIN32)
+        qt_add_executable(LogEvent WIN32
+                MANUAL_FINALIZATION
+                ${PROJECT_SOURCES}
+                ${APP_ICON_RESOURCE_WINDOWS}
+                )
+    else()
+        qt_add_executable(LogEvent
+                MANUAL_FINALIZATION
+                ${PROJECT_SOURCES}
+                )
+    endif()
     # Define target properties for Android with Qt 6 as:
     #    set_property(TARGET untitled APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
     #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
