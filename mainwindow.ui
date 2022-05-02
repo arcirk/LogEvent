@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>LogEvent</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resurce.qrc">
+    <normaloff>:/img/log_viewer.ico</normaloff>:/img/log_viewer.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
@@ -233,7 +237,7 @@
      <x>0</x>
      <y>0</y>
      <width>880</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
