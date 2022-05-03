@@ -15,6 +15,7 @@
 #include "dialogselectedrow.h"
 #include "dialogabout.h"
 #include <QSortFilterProxyModel>
+#include "filteritem.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -48,6 +49,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(filterManager, &FilterManager::removeItemOptions, this, &MainWindow::onRemoveItemOptions);
     connect(filterManager, &FilterManager::copyItemOptions, this, &MainWindow::onCopyItemOptions);
     connect(filterManager, &FilterManager::loadItemOptions, this, &MainWindow::onLoadItemOptions);
+
+    ui->btnSetFilterCurrentValue->setCheckable(true);
 }
 
 MainWindow::~MainWindow()
@@ -451,31 +454,56 @@ void MainWindow::on_btnResetFilter_clicked()
 void MainWindow::on_btnSetFilterCurrentValue_clicked()
 {
     if(!ui->tableView->currentIndex().isValid()){
+        ui->btnSetFilterCurrentValue->setChecked(false);
         return;
     }
 
-    QModelIndex index = ui->tableView->currentIndex();
-    QString codeTable = options->get_code_table_from_alias_index(index.column());
-    QString field = options->get_field_name_from_alias_index(index.column());
-    QVariant value = index.data().toString();
+    if(ui->btnSetFilterCurrentValue->isChecked() ){ //сначала щелчек потом выделение
 
-    LogEventColumn colIndex = (LogEventColumn)ColumnNames.indexOf(field);
+        QModelIndex index = ui->tableView->currentIndex();
+        QString codeTable = options->get_code_table_from_alias_index(index.column());
+        QString field = options->get_field_name_from_alias_index(index.column());
+        QVariant value = index.data().toString();
+        QList<FilterItem*> items = filterManager->findItemByName(field);
 
-    if(codeTable.isEmpty()){
-        filterManager->setFilter(colIndex, ComparisonType::equals, value, true, value);
-        on_toolBtnUpdate_clicked();
-    }else{
-        QSqlQuery query(QString("select code from %1 where name = '%2';").arg(codeTable, value.toString()));
-        QStringList values{};
-        while (query.next()) {
-            QString _value = query.value(0).toString();
-            values.append(_value);
+        if(items.size() > 0){
+            for (auto item : items) {
+                if(item->compareType() == ComparisonType::equals){
+                    if(item->aliasesValue().toString() == value.toString()){
+                        item->setUse(true);
+                        on_toolBtnUpdate_clicked();
+                        return;
+                    }
+                }
+            }
         }
-        filterManager->setFilter(colIndex, ComparisonType::on_list, values, true, value);
-        on_toolBtnUpdate_clicked();
+
+        LogEventColumn colIndex = (LogEventColumn)ColumnNames.indexOf(field);
+
+        if(codeTable.isEmpty()){
+            filterManager->setFilter(colIndex, ComparisonType::equals, value, true, value);
+            on_toolBtnUpdate_clicked();
+        }else{
+            QSqlQuery query(QString("select code from %1 where name = '%2';").arg(codeTable, value.toString()));
+            QStringList values{};
+            while (query.next()) {
+                QString _value = query.value(0).toString();
+                values.append(_value);
+            }
+            filterManager->setFilter(colIndex, ComparisonType::on_list, values, true, value);
+            on_toolBtnUpdate_clicked();
+        }
+
+    }else{
+        QString col = options->get_field_name_from_alias_index(ui->tableView->currentIndex().column());
+        QList<FilterItem*> items = filterManager->findItemByName(col);
+        for (auto item : items) {
+            item->setUse(false);
+            on_toolBtnUpdate_clicked();
+        }
     }
 
-    ;}
+}
 
 void MainWindow::onUpdateFiltersOptions(const QString& uuid, const QString& name)
 {
@@ -656,5 +684,24 @@ void MainWindow::on_mnuAbout_triggered()
     auto dlg = new DialogAbout(this);
     dlg->setModal(true);
     dlg->exec();
+}
+
+
+void MainWindow::on_tableView_clicked(const QModelIndex &index)
+{
+    QString col = options->get_field_name_from_alias_index(index.column());
+
+    QList<FilterItem*> items = filterManager->findItemByName(col);
+    bool isUse = false;
+    if(items.size() > 0){
+        for (auto item : items) {
+            if(item->use()){
+                isUse = true;
+                break;
+            }
+        }
+    }
+
+    ui->btnSetFilterCurrentValue->setChecked(isUse);
 }
 

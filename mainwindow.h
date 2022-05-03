@@ -73,6 +73,8 @@ private slots:
 
     void on_mnuAbout_triggered();
 
+    void on_tableView_clicked(const QModelIndex &index);
+
 private:
     Ui::MainWindow *ui;
     standard_period period;

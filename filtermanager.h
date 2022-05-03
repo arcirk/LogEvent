@@ -62,6 +62,8 @@ public:
     void reset();
     void load(const QUuid& uuid);
 
+    QList<FilterItem*> findItemByName(const QString& name);
+
 private:
     QMap<QUuid, FilterItem*> _filterItems;
     QString _databaseName;

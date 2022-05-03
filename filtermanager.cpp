@@ -216,6 +216,21 @@ void FilterManager::load(const QUuid &uuid)
     emit loadItemOptions(uuid);
 }
 
+QList<FilterItem*> FilterManager::findItemByName(const QString &name)
+{
+    QList<FilterItem*> list;
+
+    if(!name.isEmpty()){
+
+        for (auto item : _filterItems) {
+            if(item->key() == name)
+                list.append(item);
+        }
+    }
+
+    return list;
+}
+
 void FilterManager::setSaveCache(bool val)
 {
     _saveCache = val;
