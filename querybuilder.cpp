@@ -1,7 +1,8 @@
 #include "querybuilder.h"
 
-QueryBuilder::QueryBuilder(QObject *parent)
-    : QSqlQueryModel{parent}
+QueryBuilder::QueryBuilder(QSqlDatabase &db, QObject *parent)
+    : QSqlQueryModel{parent},
+    _db(db)
 {
     _isLimit = false;
     _limit = 0;
@@ -23,16 +24,16 @@ void QueryBuilder::set_period(const QDateTime &sdate, const QDateTime &edate)
     period.endDate = edate;
 }
 
-void QueryBuilder::build(QString& err)
+void QueryBuilder::build()
 {
 
-    qint64 startDate = period.startdate_full_seconds();
-    qint64 endDate = period.enddate_full_seconds();
+//    qint64 startDate = period.startdate_full_seconds();
+//    qint64 endDate = period.enddate_full_seconds();
 
-    if(startDate > endDate){
-        err = "Дата начала выборки не может быть больше даты окончания!";
-        return;
-    }
+//    if(startDate > endDate){
+//        err = "Дата начала выборки не может быть больше даты окончания!";
+//        return;
+//    }
 
     QString _query = getDefaultQuery();
     //_query = _query.replace("offset", QString::number(QDateTime::currentDateTime().offsetFromUtc()));
@@ -98,7 +99,7 @@ void QueryBuilder::build(QString& err)
     }
     _query.append(_where + ";");
     m_queryText = _query;
-    setQuery(_query);
+    setQuery(_query, _db);
 }
 
 void QueryBuilder::addFilter(FilerData filter)

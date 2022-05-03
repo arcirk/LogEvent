@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QMap>
 #include <QDateTime>
+#include <QSqlDatabase>
 
 enum ComparisonType{
     equals = 0,
@@ -49,13 +50,13 @@ class QueryBuilder : public QSqlQueryModel
 {
     Q_OBJECT
 public:
-    explicit QueryBuilder(QObject *parent = nullptr);
+    explicit QueryBuilder(QSqlDatabase& db, QObject *parent = nullptr);
 
     //QVariant data(const QModelIndex &item, int role) const;
 
     void set_period(const QDateTime& sdate, const QDateTime& edate);
 
-    void build(QString& err);
+    void build();
 
     void addFilter(FilerData filter);
 
@@ -74,6 +75,7 @@ private:
     int _limit;
     bool _isLimit;
 
+    QSqlDatabase &_db;
 };
 
 #endif // QUERYBUILDER_H

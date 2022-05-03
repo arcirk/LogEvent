@@ -51,6 +51,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(filterManager, &FilterManager::loadItemOptions, this, &MainWindow::onLoadItemOptions);
 
     ui->btnSetFilterCurrentValue->setCheckable(true);
+
+    //runner = new QueryBuilderRunner(this);
 }
 
 MainWindow::~MainWindow()
@@ -134,8 +136,10 @@ void MainWindow::on_toolBtnUpdate_clicked()
         return;
     }
 
-    auto * mainModel = new QueryBuilder();
+    auto * mainModel = new QueryBuilder(dbLog);
+
     mainModel->set_period(ui->dtStaretDate->dateTime(), ui->dtEndDate->dateTime());
+
     for (auto itr  : filterManager->filterItems()) {
         if(itr->use()){
             FilerData filerData;
@@ -152,16 +156,22 @@ void MainWindow::on_toolBtnUpdate_clicked()
         mainModel->setLimit(-1);
 
     QString err;
-    mainModel->build(err);
+
+    ui->tableView->setModel(0);
+
+    //mainModel->build(err);
+
+    QueryBuilderThread m_SqlThread = QueryBuilderThread(mainModel, this);
+    connect(&m_SqlThread, SIGNAL(finished()), this, SLOT(onRunQueryfinished));
+    m_SqlThread.start();
 
     QSortFilterProxyModel * proxyModel = new QSortFilterProxyModel();
+
     proxyModel->setSourceModel( mainModel );
 
     ui->tableView->setModel(proxyModel);
 
     ui->tableView->sortByColumn(0, Qt::AscendingOrder);
-
-    //qDebug() << qPrintable(mainModel->toString());
 
     setColumnsHidden();
 
@@ -311,8 +321,6 @@ void MainWindow::read_filters_cache(const QUuid& uuid)
 
 void MainWindow::save_current_filter(const QString& uuid, const QString& newName)
 {
-//    if(filterManager->filterItems().size() == 0)
-//        return;
 
     QFile file("filters.json");
     bool exists = file.exists();
@@ -325,19 +333,9 @@ void MainWindow::save_current_filter(const QString& uuid, const QString& newName
     objFilters = filterManager->toJsonObject();
 
     if(filterManager->uuid().toString() != uuid){
-        //isCurrent = false;
-//        objFilters = QJsonObject();
-//        objFilters.insert("databaseName", filterManager->databaseName());
-//        QJsonArray arr = QJsonArray();
-//        objFilters.insert("filterItems", arr);
-//        objFilters.insert("loadCache", false);
-//        objFilters.insert("nameOptions", newName);
-//        objFilters.insert("saveCache", false);
-//        objFilters.insert("uuid", uuid);
         objFilters["uuid"] = uuid;
         objFilters["nameOptions"] = newName;
-    }//else
-        //objFilters = filterManager->toJsonObject();
+    }
 
     QJsonDocument doc;
     if(exists){
@@ -703,5 +701,10 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
     }
 
     ui->btnSetFilterCurrentValue->setChecked(isUse);
+}
+
+void MainWindow::onRunQueryfinished()
+{
+    qDebug() << "onRunQueryfinished";
 }
 

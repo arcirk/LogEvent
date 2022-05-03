@@ -12,6 +12,8 @@
 #include "filtermanager.h"
 #include <QStandardItemModel>
 #include <QStandardItem>
+#include "querybuilderrunner.h"
+#include "querybuilderthread.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -75,6 +77,8 @@ private slots:
 
     void on_tableView_clicked(const QModelIndex &index);
 
+    void onRunQueryfinished();
+
 private:
     Ui::MainWindow *ui;
     standard_period period;
@@ -90,5 +94,10 @@ private:
     void save_current_filter(const QString& uuid, const QString& newName);
     void connect_database();
     void close_database();
+
+
+
+    //QueryBuilderRunner * runner;
+
 };
 #endif // MAINWINDOW_H

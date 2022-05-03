@@ -26,6 +26,8 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     querybuilder.cpp \
+    querybuilderrunner.cpp \
+    querybuilderthread.cpp \
     selectiondialog.cpp \
     settings.cpp
 
@@ -44,6 +46,8 @@ HEADERS += \
     infobases.h \
     mainwindow.h \
     querybuilder.h \
+    querybuilderrunner.h \
+    querybuilderthread.h \
     selectiondialog.h \
     settings.h
 

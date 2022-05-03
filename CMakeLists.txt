@@ -61,6 +61,10 @@ set(PROJECT_SOURCES
         selectiondialog.cpp
         selectiondialog.h
         selectiondialog.ui
+        querybuilderrunner.cpp
+        querybuilderrunner.h
+        querybuilderthread.cpp
+        querybuilderthread.h
         )
 
 set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/logevent.rc")
