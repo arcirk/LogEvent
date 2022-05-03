@@ -319,19 +319,22 @@ void MainWindow::save_current_filter(const QString& uuid, const QString& newName
     }
 
     QJsonObject objFilters;
-    //bool isCurrent = true;
+    objFilters = filterManager->toJsonObject();
+
     if(filterManager->uuid().toString() != uuid){
         //isCurrent = false;
-        objFilters = QJsonObject();
-        objFilters.insert("databaseName", filterManager->databaseName());
-        QJsonArray arr = QJsonArray();
-        objFilters.insert("filterItems", arr);
-        objFilters.insert("loadCache", false);
-        objFilters.insert("nameOptions", newName);
-        objFilters.insert("saveCache", false);
-        objFilters.insert("uuid", uuid);
-    }else
-        objFilters = filterManager->toJsonObject();
+//        objFilters = QJsonObject();
+//        objFilters.insert("databaseName", filterManager->databaseName());
+//        QJsonArray arr = QJsonArray();
+//        objFilters.insert("filterItems", arr);
+//        objFilters.insert("loadCache", false);
+//        objFilters.insert("nameOptions", newName);
+//        objFilters.insert("saveCache", false);
+//        objFilters.insert("uuid", uuid);
+        objFilters["uuid"] = uuid;
+        objFilters["nameOptions"] = newName;
+    }//else
+        //objFilters = filterManager->toJsonObject();
 
     QJsonDocument doc;
     if(exists){
@@ -506,13 +509,24 @@ void MainWindow::onUpdateAllFilterOptions(QList<filter_options*>& values)
         objMain.insert(currentIB->Name(), baseOptions);
     }
 
+    qDebug() << filterManager->uuid().toString();
+
     for (int i = 0; i < values.size(); ++i) {
         QJsonObject currOption;
+
         if(baseOptions.find(values.at(i)->uuid) != baseOptions.end()){
-            currOption = baseOptions[values.at(i)->uuid].toObject();
+            if(values.at(i)->uuid == filterManager->uuid().toString()){
+                currOption = filterManager->toJsonObject();
+                filterManager->setObjectName(currOption["nameOptions"].toString());
+                filterManager->setSaveCache(currOption["saveCache"].toBool());
+                filterManager->setloadCache(currOption["loadCache"].toBool());
+            }else
+                currOption = baseOptions[values.at(i)->uuid].toObject();
+
             currOption["saveCache"] = values.at(i)->save;
             currOption["nameOptions"] = values.at(i)->name;
             currOption["loadCache"] = values.at(i)->load;
+
             baseOptions[values.at(i)->uuid] = currOption;
         }else{
             currOption = QJsonObject();
@@ -525,13 +539,6 @@ void MainWindow::onUpdateAllFilterOptions(QList<filter_options*>& values)
             currOption.insert("uuid", values.at(i)->uuid);
             baseOptions.insert(values.at(i)->uuid, currOption);
         }
-
-        if(currOption["uuid"].toString() == filterManager->uuid().toString()){
-            filterManager->setObjectName(currOption["nameOptions"].toString());
-            filterManager->setSaveCache(currOption["saveCache"].toBool());
-            filterManager->setloadCache(currOption["loadCache"].toBool());
-        }
-
     }
 
     objMain[currentIB->Name()] = baseOptions;

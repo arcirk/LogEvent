@@ -33,16 +33,22 @@ private slots:
 
     void on_tableWidget_doubleClicked(const QModelIndex &index);
 
+    void onCheckBoxToggled(bool value);
+
+    void on_buttonBox_accepted();
+
 private:
     Ui::DialogSaveFilter *ui;
     bool _selectedMode;
     FilterManager * _manager;
+    int currentRowLoad;
+    QUuid _result;
 
     void init_model();
 
     void add_filter_item(filter_options * _opt = nullptr);
 
-    QUuid _result;
+    void set_default_item();
 
 };
 

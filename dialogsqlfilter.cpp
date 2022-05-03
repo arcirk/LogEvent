@@ -183,6 +183,78 @@ void DialogSqlFilter::addFilter(const QString &filter_field, const QUuid& uuid)
     });
 }
 
+void DialogSqlFilter::updateManager()
+{
+
+    _filterManager->filterItems().clear();
+    qDebug() << _filterManager->uuid();
+
+    int rows = ui->tableWidget->rowCount();
+
+    for(auto i = 0; i < rows; i++){
+
+        int keyString = ui->tableWidget->item(i, 5)->text().toInt();
+
+        QWidget* pWidget = ui->tableWidget->cellWidget(i, 0);
+        QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("use" + QString::number(keyString));
+
+        QWidget* pWidgetVal = ui->tableWidget->cellWidget(i, 3);
+        QVariant mCode = pWidgetVal->property("listCode");
+        QVariant vCode = pWidgetVal->property("code");
+        QString code;
+
+        QStringList lstCode{};
+        if(mCode.isValid()){
+            lstCode = mCode.toStringList();
+        }
+        if(vCode.isValid()){
+            code = vCode.toString();
+        }
+
+        bool isList = pWidgetVal->property("isList").toBool();
+
+        bool isUse = false;
+        if(checkBox)
+            isUse = checkBox->checkState() == Qt::CheckState::Checked;
+
+        QString filed = ui->tableWidget->item(i, 1)->text();
+        if(filed.isEmpty()){
+            qDebug() << "error field name in " << i << " row";
+            continue;
+        }
+
+        auto itr = _aliasesField.find(filed);
+        if(itr != _aliasesField.end())
+            filed = itr.value();
+
+        LogEventColumn colIndex = (LogEventColumn)ColumnNames.indexOf(filed);
+        QComboBox *combo = dynamic_cast<QComboBox*>( ui->tableWidget->cellWidget(i, 2) );
+        ComparisonType compareType = ComparisonType::equals;
+        if(combo)
+          compareType = _compareType[combo->currentText()];
+
+        QVariant value;
+        if(isList)
+            value = lstCode;
+        else{
+            value = code;
+        }
+
+        QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(keyString));
+
+        if(!line){
+            qDebug() << "error get item control row";
+            continue;
+        }
+
+        QTableWidgetItem * item = ui->tableWidget->item(i, 4);
+
+        _filterManager->setFilter(colIndex, compareType, value, isUse, line->text(), QUuid::fromString(item->text()));
+
+    }
+
+}
+
 void DialogSqlFilter::loadFilterItems()
 {
     ui->tableWidget->setRowCount(0);
@@ -423,73 +495,7 @@ void DialogSqlFilter::onItemComboCurrentIndexChanged(int index)
 
 void DialogSqlFilter::on_buttonBox_accepted()
 {
-
-    _filterManager->filterItems().clear();
-
-    int rows = ui->tableWidget->rowCount();
-
-    for(auto i = 0; i < rows; i++){
-
-        int keyString = ui->tableWidget->item(i, 5)->text().toInt();
-
-        QWidget* pWidget = ui->tableWidget->cellWidget(i, 0);
-        QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("use" + QString::number(keyString));
-
-        QWidget* pWidgetVal = ui->tableWidget->cellWidget(i, 3);
-        QVariant mCode = pWidgetVal->property("listCode");
-        QVariant vCode = pWidgetVal->property("code");
-        QString code;
-
-        QStringList lstCode{};
-        if(mCode.isValid()){
-            lstCode = mCode.toStringList();
-        }
-        if(vCode.isValid()){
-            code = vCode.toString();
-        }
-
-        bool isList = pWidgetVal->property("isList").toBool();
-
-        bool isUse = false;
-        if(checkBox)
-            isUse = checkBox->checkState() == Qt::CheckState::Checked;
-
-        QString filed = ui->tableWidget->item(i, 1)->text();
-        if(filed.isEmpty()){
-            qDebug() << "error field name in " << i << " row";
-            continue;
-        }
-
-        auto itr = _aliasesField.find(filed);
-        if(itr != _aliasesField.end())
-            filed = itr.value();
-
-        LogEventColumn colIndex = (LogEventColumn)ColumnNames.indexOf(filed);
-        QComboBox *combo = dynamic_cast<QComboBox*>( ui->tableWidget->cellWidget(i, 2) );
-        ComparisonType compareType = ComparisonType::equals;
-        if(combo)
-          compareType = _compareType[combo->currentText()];
-
-        QVariant value;
-        if(isList)
-            value = lstCode;
-        else{
-            value = code;
-        }
-
-        QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(keyString));
-
-        if(!line){
-            qDebug() << "error get item control row";
-            continue;
-        }
-
-        QTableWidgetItem * item = ui->tableWidget->item(i, 4);
-
-        _filterManager->setFilter(colIndex, compareType, value, isUse, line->text(), QUuid::fromString(item->text()));
-
-    }
-
+    updateManager();
 }
 
 void DialogSqlFilter::on_btnFilterItemAdd_clicked()
@@ -510,6 +516,8 @@ void DialogSqlFilter::on_btnFilterItemAdd_clicked()
 
 void DialogSqlFilter::on_btnSaveFilter_clicked()
 {
+    updateManager();
+
     auto dlg = new DialogSaveFilter(_filterManager, false, this);
     dlg->setModal(true);
     dlg->exec();

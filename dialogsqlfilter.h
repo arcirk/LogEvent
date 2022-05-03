@@ -53,6 +53,7 @@ private:
     QStandardItemModel * m_model;
 
     void addFilter(const QString& filter_field, const QUuid& uuid = QUuid::createUuid());
+    void updateManager();
 
     QMap<QString, ComparisonType> _compareType;
     QMap<QString, QString> _aliases;

@@ -15,6 +15,7 @@ public:
     QString name;
     bool save;
     bool load;
+    bool def;
 
     explicit filter_options(){};
     ~filter_options(){};
