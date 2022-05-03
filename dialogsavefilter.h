@@ -31,6 +31,8 @@ private slots:
 
     void on_btnSelect_clicked();
 
+    void on_tableWidget_doubleClicked(const QModelIndex &index);
+
 private:
     Ui::DialogSaveFilter *ui;
     bool _selectedMode;

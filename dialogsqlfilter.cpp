@@ -23,13 +23,15 @@ DialogSqlFilter::DialogSqlFilter(QWidget *parent, FilterManager * filterManager)
     _filterManager = filterManager;
 
     QTableWidget* table = ui->tableWidget;
-    table->setColumnCount(5);
+    table->setColumnCount(6);
     table->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
     table->setHorizontalHeaderItem(1, new QTableWidgetItem("Поле"));
     table->setHorizontalHeaderItem(2, new QTableWidgetItem("Вид сравнения"));
     table->setHorizontalHeaderItem(3, new QTableWidgetItem("Значение"));
     table->setHorizontalHeaderItem(4, new QTableWidgetItem("Идентификатор"));
+    table->setHorizontalHeaderItem(5, new QTableWidgetItem("КлючСтроки"));
     table->setColumnHidden(4, true);
+    table->setColumnHidden(5, true);
     table->resizeColumnsToContents();
 
     ui->toolBarFilter->addStretch();
@@ -91,15 +93,16 @@ void DialogSqlFilter::addFilter(const QString &filter_field, const QUuid& uuid)
 
     QTableWidget * table = ui->tableWidget;
 
-    table->setRowCount(table->rowCount() + 1);
+    int rowCount = table->rowCount() + 1;
+    int currentRow = rowCount - 1;
 
-    int currentRow = table->rowCount() - 1;
-
-    QTableWidgetItem *pItem = new QTableWidgetItem();
-    table->setItem(table->rowCount()-1,0,pItem);
+    table->setRowCount(rowCount);
 
     QTableWidgetItem *pItemUuid = new QTableWidgetItem(uuid.toString());
-    table->setItem(table->rowCount()-1,4,pItemUuid);
+    table->setItem(currentRow,4,pItemUuid);
+
+    QTableWidgetItem *pItemKey = new QTableWidgetItem(QString::number(currentRow));
+    table->setItem(currentRow,5,pItemKey);
 
     QWidget *pWidget = new QWidget();
     QCheckBox *pCheckBox = new QCheckBox();
@@ -271,16 +274,13 @@ void DialogSqlFilter::onToolButtonToggle()
 
 void DialogSqlFilter::on_btnFilterItemDelete_clicked()
 {
-        auto dlg = new SelectionDialog(this, ColumnNamesAliases, "Поля отбора");
-        dlg->setModal(true);
-        dlg->exec();
-        if(dlg->result() == QDialog::Accepted){
-            QVariant res = dlg->getResult();
-            if(res.userType() == QMetaType::QString){
-                addFilter(res.toString());
-
-            }
+    if(ui->tableWidget->currentRow() >= 0){
+        ui->tableWidget->removeRow(ui->tableWidget->currentRow());
+        if(ui->tableWidget->rowCount() > 0){
+            ui->tableWidget->setCurrentCell(0,0);
+            ui->tableWidget->setCurrentItem(ui->tableWidget->item(0,0));
         }
+    }
 }
 
 
@@ -293,8 +293,11 @@ void DialogSqlFilter::onSelectedFormShow(ComparisonType type, QWidget *pWidgetVa
 {
 
     if(pWidgetVal){
-        QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(row));
-        QDateTimeEdit *dt = pWidgetVal->findChild<QDateTimeEdit*>("dateTime" + QString::number(row));
+
+        int keyString = ui->tableWidget->item(row, 5)->text().toInt();
+
+        QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(keyString));
+        QDateTimeEdit *dt = pWidgetVal->findChild<QDateTimeEdit*>("dateTime" + QString::number(keyString));
 
         QString tableName;
 
@@ -355,9 +358,11 @@ void DialogSqlFilter::onItemComboCurrentIndexChanged(int index)
 
     if(pWidgetVal  && (isList != pWidgetVal->property("isList").toBool())){
 
-        QDateTimeEdit *dt = pWidgetVal->findChild<QDateTimeEdit*>("dateTime" + QString::number(row));
-        QToolButton *btn = pWidgetVal->findChild<QToolButton*>("btn" + QString::number(row));
-        QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(row));
+        int keyString = ui->tableWidget->item(row, 5)->text().toInt();
+
+        QDateTimeEdit *dt = pWidgetVal->findChild<QDateTimeEdit*>("dateTime" + QString::number(keyString));
+        QToolButton *btn = pWidgetVal->findChild<QToolButton*>("btn" + QString::number(keyString));
+        QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(keyString));
 
         QStringList lst = pWidgetVal->property("list").toStringList();
         QStringList lstCode = pWidgetVal->property("listCode").toStringList();
@@ -421,10 +426,14 @@ void DialogSqlFilter::on_buttonBox_accepted()
 
     _filterManager->filterItems().clear();
 
-    for(auto i = 0; i < ui->tableWidget->rowCount(); i++){
+    int rows = ui->tableWidget->rowCount();
+
+    for(auto i = 0; i < rows; i++){
+
+        int keyString = ui->tableWidget->item(i, 5)->text().toInt();
 
         QWidget* pWidget = ui->tableWidget->cellWidget(i, 0);
-        QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("use" + QString::number(i));
+        QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("use" + QString::number(keyString));
 
         QWidget* pWidgetVal = ui->tableWidget->cellWidget(i, 3);
         QVariant mCode = pWidgetVal->property("listCode");
@@ -468,7 +477,12 @@ void DialogSqlFilter::on_buttonBox_accepted()
             value = code;
         }
 
-        QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(i));
+        QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(keyString));
+
+        if(!line){
+            qDebug() << "error get item control row";
+            continue;
+        }
 
         QTableWidgetItem * item = ui->tableWidget->item(i, 4);
 
@@ -480,10 +494,15 @@ void DialogSqlFilter::on_buttonBox_accepted()
 
 void DialogSqlFilter::on_btnFilterItemAdd_clicked()
 {
-    if(ui->tableWidget->currentRow() >= 0){
-        ui->tableWidget->removeRow(ui->tableWidget->currentRow());
-        if(ui->tableWidget->rowCount() > 0){
-            ui->tableWidget->setCurrentCell(0,0);
+
+    auto dlg = new SelectionDialog(this, ColumnNamesAliases, "Поля отбора");
+    dlg->setModal(true);
+    dlg->exec();
+    if(dlg->result() == QDialog::Accepted){
+        QVariant res = dlg->getResult();
+        if(res.userType() == QMetaType::QString){
+            addFilter(res.toString());
+
         }
     }
 }
@@ -515,8 +534,6 @@ void DialogSqlFilter::on_btnLoadFilter_clicked()
 void DialogSqlFilter::onResetFilter()
 {
     loadFilterItems();
-
-    if(_filterManager->loadCache() && !_filterManager->nameOptions().isEmpty())
-        setWindowTitle(QString("Настройка отборов (%1)").arg(_filterManager->nameOptions()));
+    setWindowTitle(QString("Настройка отборов (%1)").arg(_filterManager->nameOptions()));
 }
 

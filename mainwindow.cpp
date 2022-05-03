@@ -306,7 +306,7 @@ void MainWindow::read_filters_cache(const QUuid& uuid)
    }
 }
 
-void MainWindow::save_current_filter(const QString& uuid)
+void MainWindow::save_current_filter(const QString& uuid, const QString& newName)
 {
 //    if(filterManager->filterItems().size() == 0)
 //        return;
@@ -318,10 +318,21 @@ void MainWindow::save_current_filter(const QString& uuid)
         //return;
     }
 
-    if(filterManager->uuid().toString() != uuid)
-        filterManager->setUuid(uuid);
+    QJsonObject objFilters;
+    //bool isCurrent = true;
+    if(filterManager->uuid().toString() != uuid){
+        //isCurrent = false;
+        objFilters = QJsonObject();
+        objFilters.insert("databaseName", filterManager->databaseName());
+        QJsonArray arr = QJsonArray();
+        objFilters.insert("filterItems", arr);
+        objFilters.insert("loadCache", false);
+        objFilters.insert("nameOptions", newName);
+        objFilters.insert("saveCache", false);
+        objFilters.insert("uuid", uuid);
+    }else
+        objFilters = filterManager->toJsonObject();
 
-    QJsonObject objFilters = filterManager->toJsonObject();
     QJsonDocument doc;
     if(exists){
         doc = QJsonDocument::fromJson(file.readAll());
@@ -466,10 +477,7 @@ void MainWindow::on_btnSetFilterCurrentValue_clicked()
 void MainWindow::onUpdateFiltersOptions(const QString& uuid, const QString& name)
 {
 
-    filterManager->setNameOptions(name);
-    filterManager->setDatabaseName(currentIB->Name());
-
-    save_current_filter(uuid);
+    save_current_filter(uuid, name);
 
 }
 

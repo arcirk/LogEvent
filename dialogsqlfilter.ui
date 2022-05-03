@@ -30,9 +30,9 @@
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="toolBarFilter">
      <item>
-      <widget class="QToolButton" name="btnFilterItemDelete">
+      <widget class="QToolButton" name="btnFilterItemAdd">
        <property name="toolTip">
-        <string>Добавить</string>
+        <string>Удалить</string>
        </property>
        <property name="text">
         <string>...</string>
@@ -44,9 +44,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="btnFilterItemAdd">
+      <widget class="QToolButton" name="btnFilterItemDelete">
        <property name="toolTip">
-        <string>Удалить</string>
+        <string>Добавить</string>
        </property>
        <property name="text">
         <string>...</string>

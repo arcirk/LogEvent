@@ -85,7 +85,7 @@ private:
 
     void setColumnsHidden();
     void read_filters_cache(const QUuid& uuid = QUuid{});
-    void save_current_filter(const QString& uuid);
+    void save_current_filter(const QString& uuid, const QString& newName);
     void connect_database();
     void close_database();
 };

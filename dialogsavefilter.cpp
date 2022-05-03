@@ -45,12 +45,14 @@ void DialogSaveFilter::accept()
         for (int i = 0; i < ui->tableWidget->rowCount(); i++) {
             QString name = ui->tableWidget->item(i, 0)->text();
             QString uuid = ui->tableWidget->item(i, 3)->text();
+            int keyString = ui->tableWidget->item(i, 4)->text().toInt();
+
             bool save = false;
             bool load = false;
 
             QWidget* pWidget = ui->tableWidget->cellWidget(i, 1);
             if(pWidget){
-                QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("save" + QString::number(i));
+                QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("save" + QString::number(keyString));
 
                 if(checkBox && checkBox->checkState() == Qt::CheckState::Checked){
                     save = true;
@@ -59,7 +61,7 @@ void DialogSaveFilter::accept()
 
             QWidget* pWidget1 = ui->tableWidget->cellWidget(i, 2);
             if(pWidget1){
-                QCheckBox * checkBox1 = pWidget1->findChild<QCheckBox*>("load" + QString::number(i));
+                QCheckBox * checkBox1 = pWidget1->findChild<QCheckBox*>("load" + QString::number(keyString));
 
                 if(checkBox1 && checkBox1->checkState() == Qt::CheckState::Checked){
                     load = true;
@@ -96,12 +98,14 @@ void DialogSaveFilter::init_model()
 
     QTableWidget* table = ui->tableWidget;
 
-    table->setColumnCount(4);
+    table->setColumnCount(5);
     table->setHorizontalHeaderItem(0, new QTableWidgetItem("Наименование"));
     table->setHorizontalHeaderItem(1, new QTableWidgetItem("Сохранять"));
     table->setHorizontalHeaderItem(2, new QTableWidgetItem("Востанавливать"));
     table->setHorizontalHeaderItem(3, new QTableWidgetItem("Идентификатор"));
+    table->setHorizontalHeaderItem(4, new QTableWidgetItem("КлючСтроки"));
     table->setColumnHidden(3, true);
+    table->setColumnHidden(4, true);
     table->resizeColumnsToContents();
 
     ui->horizontalLayout->addStretch();
@@ -162,18 +166,30 @@ void DialogSaveFilter::init_model()
         add_filter_item(_opt);
 
     }
+
 }
 
 void DialogSaveFilter::add_filter_item(filter_options *_opt)
 {
     QTableWidget* table = ui->tableWidget;
+
     table->setRowCount(table->rowCount() + 1);
+
+    int currentRow = table->rowCount() - 1;
+
+    QTableWidgetItem *pItemKey = new QTableWidgetItem(QString::number(currentRow));
+    pItemKey->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+    table->setItem(currentRow,4,pItemKey);
 
     QString name = "Новая настройка";
     if(_opt)
         name = _opt->name;
+
     QTableWidgetItem *pItem = new QTableWidgetItem(name);
+    if(_selectedMode)
+        pItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
     table->setItem(table->rowCount()-1,0,pItem);
+
     QString uuid = QUuid::createUuid().toString();
     if(_opt)
         uuid = _opt->uuid;
@@ -193,7 +209,8 @@ void DialogSaveFilter::add_filter_item(filter_options *_opt)
         if(!_opt->save)
            pCheckBox->setCheckState(Qt::CheckState::Unchecked);
     }
-    pCheckBox->setObjectName("save" + QString::number(table->rowCount()-1));
+    pCheckBox->setObjectName("save" + QString::number(currentRow));
+    pCheckBox->setEnabled(!_selectedMode);
 
     QWidget *pWidget1 = new QWidget();
     QCheckBox *pCheckBox1 = new QCheckBox();
@@ -204,11 +221,12 @@ void DialogSaveFilter::add_filter_item(filter_options *_opt)
     pWidget1->setLayout(pLayout1);
     table->setCellWidget(table->rowCount()-1,2,pWidget1);
     pCheckBox1->setCheckState(Qt::CheckState::Checked);
+    pCheckBox1->setEnabled(!_selectedMode);
     if(_opt){
         if(!_opt->load)
            pCheckBox1->setCheckState(Qt::CheckState::Unchecked);
     }
-    pCheckBox1->setObjectName("load" + QString::number(table->rowCount()-1));
+    pCheckBox1->setObjectName("load" + QString::number(currentRow));
     table->resizeColumnsToContents();
 
     if(!_selectedMode){
@@ -243,12 +261,14 @@ void DialogSaveFilter::on_btnCopy_clicked()
 
     QTableWidgetItem * item = ui->tableWidget->item(row, 0);
 
+    int keyString =  ui->tableWidget->item(row, 4)->text().toInt();
+
     filter_options *_opt = new filter_options();
     QString name = item->text() + " 1";
     _opt->name = name;
 
     QWidget* pWidget = ui->tableWidget->cellWidget(row, 1);
-    QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("save" + QString::number(row));
+    QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("save" + QString::number(keyString));
     if(checkBox){
         if(checkBox->checkState() == Qt::CheckState::Checked)
             _opt->save = true;
@@ -256,7 +276,7 @@ void DialogSaveFilter::on_btnCopy_clicked()
             _opt->save = false;
     }
     pWidget = ui->tableWidget->cellWidget(row, 2);
-    checkBox = pWidget->findChild<QCheckBox*>("load" + QString::number(row));
+    checkBox = pWidget->findChild<QCheckBox*>("load" + QString::number(keyString));
     if(checkBox){
         if(checkBox->checkState() == Qt::CheckState::Checked)
             _opt->load = true;
@@ -280,14 +300,24 @@ void DialogSaveFilter::on_btnCopy_clicked()
 
 void DialogSaveFilter::on_btnSelect_clicked()
 {
+    if(!_selectedMode)
+        return;
+
     if(ui->tableWidget->currentRow() < 0){
          QMessageBox::critical(this, "Ошибка", "Не выбран элемент!");
     }
     int row = ui->tableWidget->currentRow();
 
     auto item = ui->tableWidget->item(row, 3);
+
     _result = QUuid::fromString(item->text());
 
     accept();
+}
+
+
+void DialogSaveFilter::on_tableWidget_doubleClicked(const QModelIndex &index)
+{
+    on_btnSelect_clicked();
 }
 
