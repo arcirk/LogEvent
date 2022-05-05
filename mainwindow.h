@@ -70,6 +70,7 @@ private slots:
     void onCopyItemOptions(const QUuid& source, const QUuid& result, const QString& name);
     void onLoadItemOptions(const QUuid& id);
     void on_btnCloseDb_clicked();
+    void onSelectCurrentDay();
 
     void on_chLimit_stateChanged(int arg1);
 
@@ -89,13 +90,16 @@ private:
     QLabel * infoBar;
     FilterManager * filterManager;
 
+    QAction* actionCurrentDay;
+    QMenu* pIntervalMenu;
+
     void setColumnsHidden();
     void read_filters_cache(const QUuid& uuid = QUuid{});
     void save_current_filter(const QString& uuid, const QString& newName);
     void connect_database();
     void close_database();
-
-
+    void createActions();
+    void createIntervalMenus();
 
     //QueryBuilderRunner * runner;
 

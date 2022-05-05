@@ -52,6 +52,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->btnSetFilterCurrentValue->setCheckable(true);
 
+    createActions();
+    createIntervalMenus();
+
+    ui->btnSelectInterval->setMenu(pIntervalMenu);
+    ui->btnSelectInterval->setDefaultAction(actionCurrentDay);
+
     //runner = new QueryBuilderRunner(this);
 }
 
@@ -155,15 +161,16 @@ void MainWindow::on_toolBtnUpdate_clicked()
     else
         mainModel->setLimit(-1);
 
-    QString err;
 
     ui->tableView->setModel(0);
 
-    //mainModel->build(err);
+    mainModel->build();
 
-    QueryBuilderThread m_SqlThread = QueryBuilderThread(mainModel, this);
-    connect(&m_SqlThread, SIGNAL(finished()), this, SLOT(onRunQueryfinished));
-    m_SqlThread.start();
+    qDebug() << qPrintable(mainModel->toString());
+
+//    QueryBuilderThread m_SqlThread = QueryBuilderThread(mainModel, this);
+//    connect(&m_SqlThread, SIGNAL(finished()), this, SLOT(onRunQueryfinished));
+//    m_SqlThread.start();
 
     QSortFilterProxyModel * proxyModel = new QSortFilterProxyModel();
 
@@ -670,6 +677,11 @@ void MainWindow::on_btnCloseDb_clicked()
     close_database();
 }
 
+void MainWindow::onSelectCurrentDay()
+{
+
+}
+
 
 void MainWindow::on_chLimit_stateChanged(int arg1)
 {
@@ -708,3 +720,17 @@ void MainWindow::onRunQueryfinished()
     qDebug() << "onRunQueryfinished";
 }
 
+void MainWindow::createActions(){
+
+    actionCurrentDay = new QAction("Текущий день", this);
+
+    //alignLeftAction->setIcon(QIcon(":/icons/alignLeft.png"));
+
+    QObject::connect(actionCurrentDay, SIGNAL(triggered()),
+                                this, SLOT(onSelectCurrentDay()));
+}
+
+void MainWindow::createIntervalMenus(){
+    pIntervalMenu = new QMenu;
+    pIntervalMenu->addAction(actionCurrentDay);
+}

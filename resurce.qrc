@@ -17,5 +17,6 @@
         <file>img/closeDatabase.png</file>
         <file>img/db_close.png</file>
         <file>img/log_viewer.ico</file>
+        <file>img/selectInterval.png</file>
     </qresource>
 </RCC>
