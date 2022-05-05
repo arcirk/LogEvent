@@ -142,6 +142,9 @@ void MainWindow::on_toolBtnUpdate_clicked()
         QMessageBox::critical(this, "Ошибка", "Дата начала не может быть больше даты окончания!");
         return;
     }
+//
+//    QString stText = infoBar->text();
+//    infoBar->setText("Чтение данных ...");
 
     auto * mainModel = new QueryBuilder(dbLog);
 
@@ -165,6 +168,8 @@ void MainWindow::on_toolBtnUpdate_clicked()
 
     ui->tableView->setModel(0);
 
+
+
     mainModel->build();
 
     qDebug() << qPrintable(mainModel->toString());
@@ -178,6 +183,8 @@ void MainWindow::on_toolBtnUpdate_clicked()
     proxyModel->setSourceModel( mainModel );
 
     ui->tableView->setModel(proxyModel);
+
+    //infoBar->setText(stText);
 
     ui->tableView->sortByColumn(0, Qt::AscendingOrder);
 
