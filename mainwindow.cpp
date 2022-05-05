@@ -16,6 +16,7 @@
 #include "dialogabout.h"
 #include <QSortFilterProxyModel>
 #include "filteritem.h"
+#include <QDate>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -56,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
     createIntervalMenus();
 
     ui->btnSelectInterval->setMenu(pIntervalMenu);
-    ui->btnSelectInterval->setDefaultAction(actionCurrentDay);
+    //ui->btnSelectInterval->setDefaultAction(actionCurrentDay);
 
     //runner = new QueryBuilderRunner(this);
 }
@@ -679,7 +680,9 @@ void MainWindow::on_btnCloseDb_clicked()
 
 void MainWindow::onSelectCurrentDay()
 {
-
+    QDate dt = QDate::currentDate();
+    ui->dtStaretDate->setDateTime(dt.startOfDay());
+    ui->dtEndDate->setDateTime(dt.endOfDay());
 }
 
 
@@ -723,14 +726,37 @@ void MainWindow::onRunQueryfinished()
 void MainWindow::createActions(){
 
     actionCurrentDay = new QAction("Текущий день", this);
+    actionCurrentMonth = new QAction("Текущий месяц", this);
+    actionStartOfYear = new QAction("С начала текущего года", this);
 
     //alignLeftAction->setIcon(QIcon(":/icons/alignLeft.png"));
 
     QObject::connect(actionCurrentDay, SIGNAL(triggered()),
                                 this, SLOT(onSelectCurrentDay()));
+    QObject::connect(actionCurrentMonth, SIGNAL(triggered()),
+                     this, SLOT(onSelectCurrentMonth()));
+    QObject::connect(actionStartOfYear, SIGNAL(triggered()),
+                     this, SLOT(onSelectStartOfYear()));
 }
 
 void MainWindow::createIntervalMenus(){
     pIntervalMenu = new QMenu;
     pIntervalMenu->addAction(actionCurrentDay);
+    pIntervalMenu->addAction(actionCurrentMonth);
+    pIntervalMenu->addAction(actionStartOfYear);
+}
+
+void MainWindow::onSelectCurrentMonth() {
+    QDate dt = QDate::currentDate();
+    QDate startMonth = QDate(dt.year(), dt.month(), 1);
+    QDate endMonth = QDate(dt.year(), dt.month(),  dt.daysInMonth());
+    ui->dtStaretDate->setDateTime(startMonth.startOfDay());
+    ui->dtEndDate->setDateTime(endMonth.endOfDay());
+}
+
+void MainWindow::onSelectStartOfYear() {
+    QDate dt = QDate::currentDate();
+    QDate startMonth = QDate(dt.year(), 1, 1);
+    ui->dtStaretDate->setDateTime(startMonth.startOfDay());
+    ui->dtEndDate->setDateTime(QDateTime::currentDateTime());
 }

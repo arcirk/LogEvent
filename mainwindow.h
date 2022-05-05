@@ -71,6 +71,8 @@ private slots:
     void onLoadItemOptions(const QUuid& id);
     void on_btnCloseDb_clicked();
     void onSelectCurrentDay();
+    void onSelectCurrentMonth();
+    void onSelectStartOfYear();
 
     void on_chLimit_stateChanged(int arg1);
 
@@ -91,6 +93,9 @@ private:
     FilterManager * filterManager;
 
     QAction* actionCurrentDay;
+    QAction* actionCurrentMonth;
+    QAction* actionStartOfYear;
+
     QMenu* pIntervalMenu;
 
     void setColumnsHidden();

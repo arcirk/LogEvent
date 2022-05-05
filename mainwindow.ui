@@ -233,7 +233,7 @@
               <normaloff>:/img/selectInterval.png</normaloff>:/img/selectInterval.png</iconset>
             </property>
             <property name="popupMode">
-             <enum>QToolButton::MenuButtonPopup</enum>
+             <enum>QToolButton::InstantPopup</enum>
             </property>
            </widget>
           </item>

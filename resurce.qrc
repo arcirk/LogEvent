@@ -18,5 +18,6 @@
         <file>img/db_close.png</file>
         <file>img/log_viewer.ico</file>
         <file>img/selectInterval.png</file>
+        <file>img/selectDate.png</file>
     </qresource>
 </RCC>
