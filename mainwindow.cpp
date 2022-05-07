@@ -17,11 +17,15 @@
 #include <QSortFilterProxyModel>
 #include "filteritem.h"
 #include <QDate>
+#include "Database/AsyncQuery.h"
+#include "Database/AsynqQueryModel.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    isDatabaseAsync = false;
+
     ui->setupUi(this);
 
     options = new Settings(this);
@@ -90,17 +94,21 @@ void MainWindow::connect_database()
         return;
     }
 
-    if(dbLog.isOpen())
-        close_database();
-
-    dbLog.setDatabaseName(dbPath);
-    dbLog.open();
-    if(!dbLog.isOpen()){
-        qDebug() << "cannot open database";
+    if(!isDatabaseAsync){
+        if(dbLog.isOpen())
+            close_database();
+        dbLog.setDatabaseName(dbPath);
+        dbLog.open();
+        if(!dbLog.isOpen()){
+            qDebug() << "cannot open database";
+        }else{
+            qDebug() << "open database success";
+            read_filters_cache();
+        }
     }else{
-        qDebug() << "open database success";
-        read_filters_cache();
+        mgr->setDatabaseName(dbPath);
     }
+
 
     filterManager->setDatabaseName(currentIB->Name());
 
@@ -110,17 +118,17 @@ void MainWindow::connect_database()
 void MainWindow::on_dtEndDate_dateTimeChanged(const QDateTime &dateTime)
 {
     period.endDate = dateTime.toSecsSinceEpoch() + dateTime.offsetFromUtc();
-    if(dbLog.isOpen()){
+    //if(dbLog.isOpen()){
         on_toolBtnUpdate_clicked();
-    }
+    //}
 }
 
 void MainWindow::on_dtStaretDate_dateTimeChanged(const QDateTime &dateTime)
 {
     period.startDate = dateTime.toSecsSinceEpoch() + dateTime.offsetFromUtc();
-    if(dbLog.isOpen()){
+    //if(dbLog.isOpen()){
         on_toolBtnUpdate_clicked();
-    }
+    //}
 }
 
 void MainWindow::on_mnuExit_triggered()
@@ -131,11 +139,17 @@ void MainWindow::on_mnuExit_triggered()
 void MainWindow::on_toolBtnUpdate_clicked()
 {
 
-    //QMessageBox::critical(this, "offsetFromUtc", QString::number(QDateTime::currentDateTime().offsetFromUtc()));
-
-    if(!dbLog.isOpen()){
-        QMessageBox::critical(this, "Ошибка", "База данных не открыта!");
+    if(!currentIB)
         return;
+
+    if(!currentIB->isOpen())
+        return;
+
+    if(!isDatabaseAsync) {
+        if (!dbLog.isOpen()) {
+            QMessageBox::critical(this, "Ошибка", "База данных не открыта!");
+            return;
+        }
     }
 
     if(period.startDate > period.endDate){
@@ -143,10 +157,11 @@ void MainWindow::on_toolBtnUpdate_clicked()
         return;
     }
 //
-//    QString stText = infoBar->text();
-//    infoBar->setText("Чтение данных ...");
+    QString stText = infoBar->text();
+    infoBar->setText("Чтение данных ...");
 
-    auto * mainModel = new QueryBuilder(dbLog);
+    //auto * mainModel = new QueryBuilder(dbLog);
+    auto * mainModel = new QueryBuilder();
 
     mainModel->set_period(ui->dtStaretDate->dateTime(), ui->dtEndDate->dateTime());
 
@@ -166,25 +181,37 @@ void MainWindow::on_toolBtnUpdate_clicked()
         mainModel->setLimit(-1);
 
 
-    ui->tableView->setModel(0);
+    ui->tableView->setModel(nullptr);
 
+    mainModel->build(isDatabaseAsync);
 
-
-    mainModel->build();
-
-    qDebug() << qPrintable(mainModel->toString());
+//    qDebug() << qPrintable(mainModel->toString());
 
 //    QueryBuilderThread m_SqlThread = QueryBuilderThread(mainModel, this);
-//    connect(&m_SqlThread, SIGNAL(finished()), this, SLOT(onRunQueryfinished));
+//    connect(&m_SqlThread, SIGNAL(finished()), this, SLOT(onRunQueryFinished));
 //    m_SqlThread.start();
 
-    QSortFilterProxyModel * proxyModel = new QSortFilterProxyModel();
+auto * proxyModel = new QSortFilterProxyModel();
 
-    proxyModel->setSourceModel( mainModel );
+    if(!isDatabaseAsync){
+        proxyModel->setSourceModel( mainModel );
+        ui->tableView->setModel(proxyModel);
+    }else{
+        Database::AsyncQueryModel *queryModel = new Database::AsyncQueryModel();
+        proxyModel->setSourceModel( queryModel );
+        //ui->tableView->setModel(proxyModel);
+        queryModel->startExec(mainModel->toString());
+        ui->tableView->setModel(queryModel);
+        ui->tableView->show();
 
-    ui->tableView->setModel(proxyModel);
+        connect (queryModel, SIGNAL(execDone(Database::AsyncQueryResult)),
+                 this, SLOT(onExecDone(Database::AsyncQueryResult)));
 
-    //infoBar->setText(stText);
+        delete mainModel;
+    }
+
+
+    infoBar->setText(stText);
 
     ui->tableView->sortByColumn(0, Qt::AscendingOrder);
 
@@ -222,6 +249,8 @@ void MainWindow::on_mnuDbConnect_triggered()
     dlg->exec();
     if(dlg->result() == QDialog::Accepted){
         currentIB = options->get_infobases()[dlg->selectedItem];
+        if(isDatabaseAsync)
+            currentIB->setIsOpen(true);
         this->setWindowTitle("LogEvent:" + options->v8srvinfo_catalog() +  " (" + dlg->selectedItem + ")");
         connect_database();
     }
@@ -265,7 +294,6 @@ void MainWindow::on_mnuColumnVisuble_triggered()
 void MainWindow::setColumnsHidden()
 {
     if(ui->tableView->model()){
-        qDebug() << ui->tableView->model()->columnCount();
         for(int i = 0; i < ui->tableView->model()->columnCount(); i++)
         {
           QString col = ui->tableView->model()->headerData(i, Qt::Horizontal).toString();
@@ -273,7 +301,6 @@ void MainWindow::setColumnsHidden()
           if(itr != options->get_selected_cols().end())
               ui->tableView->setColumnHidden(i, !itr.value());
         }
-        qDebug() << ui->tableView->model()->columnCount();
     }
 }
 
@@ -302,12 +329,12 @@ void MainWindow::read_filters_cache(const QUuid& uuid)
        if(obj.isEmpty())
            return;
 
-       auto itr = obj.find(currentIB->Name());
+       auto _itr = obj.find(currentIB->Name());
 
-       if(itr == obj.end() || obj.isEmpty())
+       if(_itr == obj.end() || obj.isEmpty())
            return;
 
-       auto _curDb = itr.value().toObject();
+       auto _curDb = _itr.value().toObject();
 
        if(uuid.isNull()){
 
@@ -339,10 +366,7 @@ void MainWindow::save_current_filter(const QString& uuid, const QString& newName
 
     QFile file("filters.json");
     bool exists = file.exists();
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        //return;
-    }
+    file.open(QIODevice::ReadOnly);
 
     QJsonObject objFilters;
     objFilters = filterManager->toJsonObject();
@@ -479,7 +503,7 @@ void MainWindow::on_btnSetFilterCurrentValue_clicked()
         QVariant value = index.data().toString();
         QList<FilterItem*> items = filterManager->findItemByName(field);
 
-        if(items.size() > 0){
+        if(!items.empty()){
             for (auto item : items) {
                 if(item->compareType() == ComparisonType::equals){
                     if(item->aliasesValue().toString() == value.toString()){
@@ -491,7 +515,7 @@ void MainWindow::on_btnSetFilterCurrentValue_clicked()
             }
         }
 
-        LogEventColumn colIndex = (LogEventColumn)ColumnNames.indexOf(field);
+        auto colIndex = (LogEventColumn)ColumnNames.indexOf(field);
 
         if(codeTable.isEmpty()){
             filterManager->setFilter(colIndex, ComparisonType::equals, value, true, value);
@@ -550,35 +574,36 @@ void MainWindow::onUpdateAllFilterOptions(QList<filter_options*>& values)
         objMain.insert(currentIB->Name(), baseOptions);
     }
 
-    qDebug() << filterManager->uuid().toString();
+    //qDebug() << filterManager->uuid().toString();
 
-    for (int i = 0; i < values.size(); ++i) {
+    for (auto value : values) {
+
         QJsonObject currOption;
 
-        if(baseOptions.find(values.at(i)->uuid) != baseOptions.end()){
-            if(values.at(i)->uuid == filterManager->uuid().toString()){
+        if(baseOptions.find(value->uuid) != baseOptions.end()){
+            if(value->uuid == filterManager->uuid().toString()){
                 currOption = filterManager->toJsonObject();
                 filterManager->setObjectName(currOption["nameOptions"].toString());
                 filterManager->setSaveCache(currOption["saveCache"].toBool());
                 filterManager->setloadCache(currOption["loadCache"].toBool());
             }else
-                currOption = baseOptions[values.at(i)->uuid].toObject();
+                currOption = baseOptions[value->uuid].toObject();
 
-            currOption["saveCache"] = values.at(i)->save;
-            currOption["nameOptions"] = values.at(i)->name;
-            currOption["loadCache"] = values.at(i)->load;
+            currOption["saveCache"] = value->save;
+            currOption["nameOptions"] = value->name;
+            currOption["loadCache"] = value->load;
 
-            baseOptions[values.at(i)->uuid] = currOption;
+            baseOptions[value->uuid] = currOption;
         }else{
             currOption = QJsonObject();
             currOption.insert("databaseName", currentIB->Name());
             QJsonArray arr = QJsonArray();
             currOption.insert("filterItems", arr);
-            currOption.insert("loadCache", values.at(i)->load);
-            currOption.insert("nameOptions", values.at(i)->name);
-            currOption.insert("saveCache", values.at(i)->save);
-            currOption.insert("uuid", values.at(i)->uuid);
-            baseOptions.insert(values.at(i)->uuid, currOption);
+            currOption.insert("loadCache", value->load);
+            currOption.insert("nameOptions", value->name);
+            currOption.insert("saveCache", value->save);
+            currOption.insert("uuid", value->uuid);
+            baseOptions.insert(value->uuid, currOption);
         }
     }
 
@@ -725,9 +750,9 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
     ui->btnSetFilterCurrentValue->setChecked(isUse);
 }
 
-void MainWindow::onRunQueryfinished()
+void MainWindow::onRunQueryFinished()
 {
-    qDebug() << "onRunQueryfinished";
+    qDebug() << "onRunQueryFinished";
 }
 
 void MainWindow::createActions(){
@@ -738,12 +763,9 @@ void MainWindow::createActions(){
 
     //alignLeftAction->setIcon(QIcon(":/icons/alignLeft.png"));
 
-    QObject::connect(actionCurrentDay, SIGNAL(triggered()),
-                                this, SLOT(onSelectCurrentDay()));
-    QObject::connect(actionCurrentMonth, SIGNAL(triggered()),
-                     this, SLOT(onSelectCurrentMonth()));
-    QObject::connect(actionStartOfYear, SIGNAL(triggered()),
-                     this, SLOT(onSelectStartOfYear()));
+    QObject::connect(actionCurrentDay, SIGNAL(triggered()),this, SLOT(onSelectCurrentDay()));
+    QObject::connect(actionCurrentMonth, SIGNAL(triggered()),this, SLOT(onSelectCurrentMonth()));
+    QObject::connect(actionStartOfYear, SIGNAL(triggered()),this, SLOT(onSelectStartOfYear()));
 }
 
 void MainWindow::createIntervalMenus(){
@@ -766,4 +788,50 @@ void MainWindow::onSelectStartOfYear() {
     QDate startMonth = QDate(dt.year(), 1, 1);
     ui->dtStaretDate->setDateTime(startMonth.startOfDay());
     ui->dtEndDate->setDateTime(QDateTime::currentDateTime());
+}
+
+MainWindow::MainWindow(Database::ConnectionManager *_mgr, QWidget *parent)
+        : QMainWindow(parent)
+        , ui(new Ui::MainWindow){
+
+    mgr = _mgr;
+    isDatabaseAsync = true;
+
+    ui->setupUi(this);
+
+    options = new Settings(this);
+    options->getSettings();
+
+    if(!options->v8srvinfo_catalog().isEmpty()){
+        options->get_server_info(options->v8srvinfo_catalog());
+        this->setWindowTitle("LogEvent:" + options->v8srvinfo_catalog());
+    }
+
+    currentIB = nullptr;
+
+    ui->dtStaretDate->setDateTime(QDateTime::currentDateTime().addDays(-1));
+    ui->dtEndDate->setDateTime(QDateTime::currentDateTime());
+
+    filterManager = new FilterManager();
+
+    infoBar = new QLabel(this);
+    ui->statusbar->addWidget(infoBar);
+    infoBar->setText("Не подключен.");
+
+    connect(filterManager, &FilterManager::updateFilterOptions, this, &MainWindow::onUpdateFiltersOptions);
+    connect(filterManager, &FilterManager::updateAllFilterOptions, this, &MainWindow::onUpdateAllFilterOptions);
+    connect(filterManager, &FilterManager::removeItemOptions, this, &MainWindow::onRemoveItemOptions);
+    connect(filterManager, &FilterManager::copyItemOptions, this, &MainWindow::onCopyItemOptions);
+    connect(filterManager, &FilterManager::loadItemOptions, this, &MainWindow::onLoadItemOptions);
+
+    ui->btnSetFilterCurrentValue->setCheckable(true);
+
+    createActions();
+    createIntervalMenus();
+
+    ui->btnSelectInterval->setMenu(pIntervalMenu);
+}
+
+void MainWindow::onExecDone(Database::AsyncQueryResult) {
+    qDebug() << "onExecDone";
 }

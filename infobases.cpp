@@ -4,6 +4,7 @@ Infobases::Infobases(QObject *parent)
     : QObject{parent}
 {
     _SizeEventLog = 0;
+    _isOpen = false;
 }
 
 QString Infobases::Name()
@@ -54,4 +55,12 @@ QString Infobases::PathLogEvent()
 void Infobases::setPathLogEvent(const QString &pth)
 {
     _PathLogEvent = pth;
+}
+
+bool Infobases::isOpen() {
+    return _isOpen;
+}
+
+void Infobases::setIsOpen(bool val) {
+    _isOpen = val;
 }

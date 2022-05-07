@@ -19,12 +19,17 @@ public:
     void setSizeEventLog(double size);
     QString PathLogEvent();
     void setPathLogEvent(const QString& pth);
+
+    bool isOpen();
+    void setIsOpen(bool val);
+
 private:
     QString _Name;
     QString _GUID;
     QString _Description;
     double _SizeEventLog;
     QString _PathLogEvent;
+    bool _isOpen;
 
 signals:
 

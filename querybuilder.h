@@ -50,13 +50,14 @@ class QueryBuilder : public QSqlQueryModel
 {
     Q_OBJECT
 public:
-    explicit QueryBuilder(QSqlDatabase& db, QObject *parent = nullptr);
+    explicit QueryBuilder(QObject *parent = nullptr);
+    //explicit QueryBuilder(QSqlDatabase& db, QObject *parent = nullptr);
 
     //QVariant data(const QModelIndex &item, int role) const;
 
     void set_period(const QDateTime& sdate, const QDateTime& edate);
 
-    void build();
+    void build(bool textOnly = false);
 
     void addFilter(FilerData filter);
 
@@ -75,7 +76,7 @@ private:
     int _limit;
     bool _isLimit;
 
-    QSqlDatabase &_db;
+    //QSqlDatabase &_db;
 };
 
 #endif // QUERYBUILDER_H

@@ -11,6 +11,10 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Database/AsyncQuery.cpp \
+    Database/AsyncQueryResult.cpp \
+    Database/AsynqQueryModel.cpp \
+    Database/ConnectionManager.cpp \
     dialogabout.cpp \
     dialogoptions.cpp \
     dialogselectcolumn.cpp \
@@ -32,6 +36,10 @@ SOURCES += \
     settings.cpp
 
 HEADERS += \
+    Database/AsyncQuery.h \
+    Database/AsyncQueryResult.h \
+    Database/AsynqQueryModel.h \
+    Database/ConnectionManager.h \
     dialogabout.h \
     dialogoptions.h \
     dialogselectcolumn.h \

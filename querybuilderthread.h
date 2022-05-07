@@ -9,9 +9,9 @@ class QueryBuilderThread : public QThread
     Q_OBJECT
 public:
     explicit QueryBuilderThread(QueryBuilder *pModel,
-                                QObject *parent = 0);
+                                QObject *parent = nullptr);
 
-   void run();
+   void run() override;
 
 signals:
 

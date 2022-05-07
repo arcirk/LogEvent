@@ -1,8 +1,7 @@
 #include "querybuilder.h"
 
-QueryBuilder::QueryBuilder(QSqlDatabase &db, QObject *parent)
-    : QSqlQueryModel{parent},
-    _db(db)
+QueryBuilder::QueryBuilder(QObject *parent)
+    : QSqlQueryModel{parent}
 {
     _isLimit = false;
     _limit = 0;
@@ -24,7 +23,7 @@ void QueryBuilder::set_period(const QDateTime &sdate, const QDateTime &edate)
     period.endDate = edate;
 }
 
-void QueryBuilder::build()
+void QueryBuilder::build(bool textOnly)
 {
 
 //    qint64 startDate = period.startdate_full_seconds();
@@ -99,7 +98,9 @@ void QueryBuilder::build()
     }
     _query.append(_where + ";");
     m_queryText = _query;
-    setQuery(_query, _db);
+
+    if(!textOnly)
+        setQuery(_query);
 }
 
 void QueryBuilder::addFilter(FilerData filter)

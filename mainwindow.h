@@ -12,8 +12,11 @@
 #include "filtermanager.h"
 #include <QStandardItemModel>
 #include <QStandardItem>
-#include "querybuilderrunner.h"
-#include "querybuilderthread.h"
+//#include "querybuilderrunner.h"
+//#include "querybuilderthread.h"
+
+#include "Database/ConnectionManager.h"
+#include "Database/AsyncQueryResult.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -31,6 +34,8 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+    MainWindow(Database::ConnectionManager *_mgr, QWidget *parent = nullptr);
+
     ~MainWindow();
 
 
@@ -80,7 +85,9 @@ private slots:
 
     void on_tableView_clicked(const QModelIndex &index);
 
-    void onRunQueryfinished();
+    void onRunQueryFinished();
+
+    void onExecDone(Database::AsyncQueryResult);
 
 private:
     Ui::MainWindow *ui;
@@ -97,6 +104,9 @@ private:
     QAction* actionStartOfYear;
 
     QMenu* pIntervalMenu;
+
+    Database::ConnectionManager *mgr;
+    bool isDatabaseAsync;
 
     void setColumnsHidden();
     void read_filters_cache(const QUuid& uuid = QUuid{});
