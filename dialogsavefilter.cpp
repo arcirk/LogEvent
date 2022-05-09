@@ -240,10 +240,6 @@ void DialogSaveFilter::add_filter_item(filter_options *_opt)
     if(_opt){
         if(_opt->save)
            pCheckBox->setCheckState(Qt::CheckState::Checked);
-//    }else{
-//        if(currentRow == 0 && !_selectedMode){
-//            pCheckBox->setCheckState(Qt::CheckState::Checked);
-//        }
     }
     pCheckBox->setObjectName("save" + QString::number(currentRow));
     pCheckBox->setEnabled(!_selectedMode);
@@ -417,9 +413,6 @@ void DialogSaveFilter::onCheckBoxToggled(bool value)
     }
     set_default_item();
 }
-
-
-
 
 void DialogSaveFilter::on_buttonBox_accepted()
 {

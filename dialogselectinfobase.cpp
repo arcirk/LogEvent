@@ -12,10 +12,7 @@ DialogSelectInfobase::DialogSelectInfobase(QWidget *parent, QMap<QString, Infoba
     QDialog(parent),
     ui(new Ui::DialogSelectInfobase)
 {
-
     ui->setupUi(this);
-
-
 
     QTableWidget * table = ui->tableInfoBase;
     table->setRowCount(0);
@@ -37,10 +34,6 @@ DialogSelectInfobase::DialogSelectInfobase(QWidget *parent, QMap<QString, Infoba
         index++;
     }
 
-//    table->horizontalHeader()->setResizeContentsPrecision(QHeaderView::Fixed);
-//    for (int i = 0; i < table->columnCount() ; ++i) {
-//        table->resizeColumnToContents(i);
-//    }
 }
 
 DialogSelectInfobase::~DialogSelectInfobase()

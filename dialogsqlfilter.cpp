@@ -1,10 +1,8 @@
 #include "dialogsqlfilter.h"
 #include "ui_dialogsqlfilter.h"
-#include <QTableWidgetItem>
 #include <QTableWidget>
 #include "dialogselectitemsfilter.h"
 #include "settings.h"
-#include <QStandardItem>
 #include <selectiondialog.h>
 #include <QComboBox>
 #include <QStringListModel>
@@ -381,7 +379,7 @@ void DialogSqlFilter::onSelectedFormShow(ComparisonType type, QWidget *pWidgetVa
         bool isList = pWidgetVal->property("isList").toBool();
         QString dataType = pWidgetVal->property("dataType").toString();
 
-        auto dlg = new DialogSelectItemsFilter(this, tableName, lst, type);
+        auto dlg = new DialogSelectItemsFilter(this, tableName, field, lst, type);
         dlg->setModal(true);
         dlg->exec();
         if(dlg->result() == QDialog::Accepted){

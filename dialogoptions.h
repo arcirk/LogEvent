@@ -15,8 +15,7 @@ public:
     explicit DialogOptions(QWidget *parent = nullptr);
     ~DialogOptions();
 
-    QString logDbPateh;
-    //bool accepted;
+    QString logDbPath;
 
 private slots:
     void on_btnSelectFile_clicked();

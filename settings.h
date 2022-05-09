@@ -88,8 +88,6 @@ public:
     static QStringList ParseEventLogString(const QString& text);
     static double CountSubstringInString(const QString& str, const QString& substr);
 
-    //QString v8srvinfo;
-
 #ifdef _WINDOWS
     static QString get_service_command_line();
     void parse_command_line(const QString& cmd, QString& result, QString& root_result);
@@ -110,7 +108,6 @@ private:
     QMap<int, QString> _fields_from_alias_index;
 
     void set_v8srvinfo_logevent_catalog(const QString& val);
-//signals:
 
 };
 

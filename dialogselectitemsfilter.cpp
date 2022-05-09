@@ -1,7 +1,6 @@
 #include "dialogselectitemsfilter.h"
 #include "ui_dialogselectitemsfilter.h"
 #include <QSqlQueryModel>
-#include "electionlistsmodel.h"
 #include <QSqlQuery>
 #include <QStandardItemModel>
 #include <QMessageBox>
@@ -13,7 +12,7 @@ DialogSelectItemsFilter::DialogSelectItemsFilter(QWidget *parent) :
     ui->setupUi(this);
 }
 
-DialogSelectItemsFilter::DialogSelectItemsFilter(QWidget *parent, const QString &table, const QStringList& lst, ComparisonType compareType) :
+DialogSelectItemsFilter::DialogSelectItemsFilter(QWidget *parent, const QString &table, const QString& tableAlias, const QStringList& lst, ComparisonType compareType) :
     QDialog(parent),
     ui(new Ui::DialogSelectItemsFilter)
 {
@@ -29,15 +28,13 @@ DialogSelectItemsFilter::DialogSelectItemsFilter(QWidget *parent, const QString 
     QStandardItem * itemCode = new QStandardItem("Код");
     model->setHorizontalHeaderItem(2, itemCode);
 
-
-
     if(!table.isEmpty())
         init_sql_table(table, lst);
     else
         init_table(lst);
 
     ui->tableView->setModel(model);
-    //ui->tableView->setColumnHidden(2, true);
+    ui->tableView->setColumnHidden(2, true);
     ui->tableView->resizeColumnsToContents();
 
     isList = false;
@@ -51,7 +48,7 @@ DialogSelectItemsFilter::DialogSelectItemsFilter(QWidget *parent, const QString 
 
     ui->bToolBar->addStretch();
 
-    setWindowTitle(table);
+    setWindowTitle(tableAlias);
 }
 
 DialogSelectItemsFilter::~DialogSelectItemsFilter()
@@ -86,11 +83,6 @@ void DialogSelectItemsFilter::init_sql_table(const QString& table, const QString
 
     QSqlQuery _query;
     _query.exec(query);
-
-//    _query.last();
-//    int row_count = _query.at() + 1;
-//    _query.first();
-//    model->setRowCount(row_count);
 
     int i = 0;
     while (_query.next()) {

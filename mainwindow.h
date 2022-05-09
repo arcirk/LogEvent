@@ -12,11 +12,7 @@
 #include "filtermanager.h"
 #include <QStandardItemModel>
 #include <QStandardItem>
-//#include "querybuilderrunner.h"
-//#include "querybuilderthread.h"
 
-#include "Database/ConnectionManager.h"
-#include "Database/AsyncQueryResult.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -34,7 +30,6 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    MainWindow(Database::ConnectionManager *_mgr, QWidget *parent = nullptr);
 
     ~MainWindow();
 
@@ -49,7 +44,6 @@ private slots:
 
     void on_toolBtnUpdate_clicked();
 
-    void on_mnuOptions_triggered();
 
     void on_mnuDbConnect_triggered();
 
@@ -85,10 +79,6 @@ private slots:
 
     void on_tableView_clicked(const QModelIndex &index);
 
-    void onRunQueryFinished();
-
-    void onExecDone(Database::AsyncQueryResult);
-
 private:
     Ui::MainWindow *ui;
     standard_period period;
@@ -105,9 +95,6 @@ private:
 
     QMenu* pIntervalMenu;
 
-    Database::ConnectionManager *mgr;
-    bool isDatabaseAsync;
-
     void setColumnsHidden();
     void read_filters_cache(const QUuid& uuid = QUuid{});
     void save_current_filter(const QString& uuid, const QString& newName);
@@ -115,8 +102,6 @@ private:
     void close_database();
     void createActions();
     void createIntervalMenus();
-
-    //QueryBuilderRunner * runner;
 
 };
 #endif // MAINWINDOW_H

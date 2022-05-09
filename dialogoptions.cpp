@@ -11,9 +11,9 @@ DialogOptions::DialogOptions(QWidget *parent) :
     ui(new Ui::DialogOptions)
 {    
     ui->setupUi(this);
-    logDbPateh = "";
+    logDbPath = "";
     loadAppSettings();
-    ui->linePath->setText(logDbPateh);
+    ui->linePath->setText(logDbPath);
 }
 
 DialogOptions::~DialogOptions()
@@ -25,15 +25,15 @@ void DialogOptions::on_btnSelectFile_clicked()
 {
     QString file = QFileDialog::getOpenFileName(this);
     if(!file.isEmpty()){
-       logDbPateh = file;
-       ui->linePath->setText(logDbPateh);
+        logDbPath = file;
+       ui->linePath->setText(logDbPath);
     }
 }
 
 
 void DialogOptions::on_buttonBox_accepted()
 {
-    logDbPateh = ui->linePath->text();
+    logDbPath = ui->linePath->text();
     saveAppSettings();
 }
 
@@ -47,9 +47,9 @@ void DialogOptions::loadAppSettings()
     QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
     if(!doc.isNull()){
         QJsonObject obj = doc.object();
-        auto _logDbPateh = obj.find("logDbPateh");
+        auto _logDbPateh = obj.find("logDbPath");
         if(_logDbPateh->isString()){
-            logDbPateh = _logDbPateh->toString();
+            logDbPath = _logDbPateh->toString();
         }
     }
     file.close();
@@ -64,7 +64,7 @@ void DialogOptions::saveAppSettings()
     }
 
     QJsonObject obj = QJsonObject();
-    obj.insert("logDbPateh", logDbPateh);
+    obj.insert("logDbPath", logDbPath);
 
     QJsonDocument _doc(obj);
     jsonFile.write(_doc.toJson(QJsonDocument::Indented));

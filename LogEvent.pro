@@ -11,10 +11,6 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    Database/AsyncQuery.cpp \
-    Database/AsyncQueryResult.cpp \
-    Database/AsynqQueryModel.cpp \
-    Database/ConnectionManager.cpp \
     dialogabout.cpp \
     dialogoptions.cpp \
     dialogselectcolumn.cpp \
@@ -23,23 +19,16 @@ SOURCES += \
     dialogselectitemsfilter.cpp \
     dialogsqlfilter.cpp \
     dialogsavefilter.cpp \
-    electionlistsmodel.cpp \
     filteritem.cpp \
     filtermanager.cpp \
     infobases.cpp \
     main.cpp \
     mainwindow.cpp \
     querybuilder.cpp \
-    querybuilderrunner.cpp \
-    querybuilderthread.cpp \
     selectiondialog.cpp \
     settings.cpp
 
 HEADERS += \
-    Database/AsyncQuery.h \
-    Database/AsyncQueryResult.h \
-    Database/AsynqQueryModel.h \
-    Database/ConnectionManager.h \
     dialogabout.h \
     dialogoptions.h \
     dialogselectcolumn.h \
@@ -48,14 +37,11 @@ HEADERS += \
     dialogselectitemsfilter.h \
     dialogsqlfilter.h \
     dialogsavefilter.h \
-    electionlistsmodel.h \
     filteritem.h \
     filtermanager.h \
     infobases.h \
     mainwindow.h \
     querybuilder.h \
-    querybuilderrunner.h \
-    querybuilderthread.h \
     selectiondialog.h \
     settings.h
 
@@ -80,3 +66,13 @@ RESOURCES += \
     resurce.qrc
 
 windows:DEFINES += _WINDOWS
+
+win32 {
+    RC_FILE = logevent.rc
+    }
+
+DISTFILES += \
+    logevent.rc
+
+OTHER_FILES += \
+    logevent.rc

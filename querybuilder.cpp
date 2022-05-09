@@ -7,15 +7,6 @@ QueryBuilder::QueryBuilder(QObject *parent)
     _limit = 0;
 }
 
-//QVariant QueryBuilder::data(const QModelIndex &item, int role) const
-//{
-//    if (item.column() == 0) {
-//        QString date = QSqlQueryModel::data(item, role).toString();
-//        QDateTime dt = QDateTime::fromString(date);
-//        //return QDateTime::fromString(date);
-//    }
-//    return QSqlQueryModel::data(item, role);
-//}
 
 void QueryBuilder::set_period(const QDateTime &sdate, const QDateTime &edate)
 {
@@ -26,30 +17,11 @@ void QueryBuilder::set_period(const QDateTime &sdate, const QDateTime &edate)
 void QueryBuilder::build(bool textOnly)
 {
 
-//    qint64 startDate = period.startdate_full_seconds();
-//    qint64 endDate = period.enddate_full_seconds();
-
-//    if(startDate > endDate){
-//        err = "Дата начала выборки не может быть больше даты окончания!";
-//        return;
-//    }
-
     QString _query = getDefaultQuery();
-    //_query = _query.replace("offset", QString::number(QDateTime::currentDateTime().offsetFromUtc()));
     qint64 offset = QDateTime::currentDateTime().offsetFromUtc() - 18000;// 3*60*60;
     _query = _query.replace("offset", QString::number(offset));
 
-    qDebug() << QDateTime::currentDateTime();
-    qDebug() << QDateTime::currentDateTimeUtc();
-
-//    qDebug() << QDateTime::currentDateTime().offsetFromUtc();
-    // qDebug() << QDateTime::currentDateTime().timeZone();
-
-    //QString _where = QString("\nWHERE log.date between (%1 AND %2)").arg(QString::number(period.startdate_full_seconds()), QString::number(period.enddate_full_seconds()));
-
     QString _where = QString("\nWHERE log.date >= %1 AND log.date <= %2").arg(QString::number(period.startdate_full_seconds()), QString::number(period.enddate_full_seconds()));
-
-
 
     for (auto itr = m_ListFiler.begin(); itr != m_ListFiler.end(); ++itr) {
 
@@ -73,8 +45,6 @@ void QueryBuilder::build(bool textOnly)
         else if(itr->type == ComparisonType::more_or_equal)
             _where.append(" >= ");
 
-        //QVariant value = itr->value;
-        //QString sz_value;
         if(itr->value.userType() == QMetaType::QString)
             _where.append(QString("'%1'").arg(itr->value.toString()));
         else if(itr->value.userType() == QMetaType::Int)
