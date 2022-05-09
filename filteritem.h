@@ -1,14 +1,12 @@
 #ifndef FILTERITEM_H
 #define FILTERITEM_H
 
-//#include <QObject>
 #include "settings.h"
 #include "querybuilder.h"
 #include <QUuid>
 
 class FilterItem
 {
-    //Q_OBJECT
 public:
 
     explicit FilterItem();

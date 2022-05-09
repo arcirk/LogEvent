@@ -16,7 +16,7 @@ class DialogSaveFilter : public QDialog
 
 public:
     explicit DialogSaveFilter(FilterManager * manager, bool SelectedMode, QWidget *parent = nullptr);
-    ~DialogSaveFilter();
+    ~DialogSaveFilter() override;
 
     void accept() override;
 

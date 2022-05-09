@@ -14,7 +14,7 @@ class DialogSelectedRow : public QDialog
 
 public:
     explicit DialogSelectedRow(QMap<QString, QString> row, QWidget *parent = nullptr);
-    ~DialogSelectedRow();
+    ~DialogSelectedRow() override;
 
 private:
     Ui::DialogSelectedRow *ui;

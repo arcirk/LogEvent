@@ -28,7 +28,7 @@ class FilterManager : public QObject
 
 public:
     explicit FilterManager(QObject *parent = nullptr);
-    ~FilterManager(){};
+    ~FilterManager() override{};
 
     void setFilter(LogEventColumn  colIndex,
                    ComparisonType compareType,

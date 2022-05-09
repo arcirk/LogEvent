@@ -15,9 +15,9 @@ class SelectionDialog : public QDialog
 
 public:
     explicit SelectionDialog(QWidget *parent, const QStringList& list, const QString& title);
-    ~SelectionDialog();
+    ~SelectionDialog() override;
 
-    QVariant getResult() const;
+    [[nodiscard]] QVariant getResult() const;
 
 
 private slots:
@@ -27,7 +27,6 @@ private slots:
     void on_listView_doubleClicked(const QModelIndex &index);
 
 private:
-    QStandardItemModel * m_model;
     Ui::SelectionDialog *ui;
     QVariant selection_result;
 };

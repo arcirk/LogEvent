@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QMessageBox>
-#include "dialogoptions.h"
 #include <QFile>
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -138,8 +137,6 @@ void MainWindow::on_toolBtnUpdate_clicked()
         QMessageBox::critical(this, "Ошибка", "Дата начала не может быть больше даты окончания!");
         return;
     }
-//
-    QString stText = infoBar->text();
 
     auto * mainModel = new QueryBuilder();
 
@@ -672,7 +669,7 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
 
     QList<FilterItem*> items = filterManager->findItemByName(col);
     bool isUse = false;
-    if(items.size() > 0){
+    if(!items.empty()){
         for (auto item : items) {
             if(item->use()){
                 isUse = true;

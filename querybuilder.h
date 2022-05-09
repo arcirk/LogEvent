@@ -42,8 +42,8 @@ struct FilerData{
     ComparisonType type;
     QVariant value;
     QString field;
-    FilerData(){};
-    ~FilerData(){};
+    FilerData()= default;;
+    ~FilerData()= default;;
 };
 
 class QueryBuilder : public QSqlQueryModel
@@ -56,7 +56,7 @@ public:
 
     void build(bool textOnly = false);
 
-    void addFilter(FilerData filter);
+    void addFilter(const FilerData& filter);
 
     QString toString();
 
@@ -68,7 +68,7 @@ private:
     BuilderPeriod period;
     QMap<QString, QString> aliases;
     QList<FilerData> m_ListFiler;
-    QString getDefaultQuery();
+    static QString getDefaultQuery();
     QString m_queryText;
     int _limit;
     bool _isLimit;

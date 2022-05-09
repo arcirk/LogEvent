@@ -18,7 +18,7 @@ public:
     explicit DialogSelectColumn(QWidget *parent = nullptr);
     explicit DialogSelectColumn(QWidget *parent, Settings * option);
 
-    ~DialogSelectColumn();
+    ~DialogSelectColumn() override;
 
 private slots:
     void on_buttonBox_accepted();

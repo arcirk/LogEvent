@@ -17,7 +17,7 @@ class DialogSelectItemsFilter : public QDialog
 public:
     explicit DialogSelectItemsFilter(QWidget *parent = nullptr);
     explicit DialogSelectItemsFilter(QWidget *parent , const QString& table, const QString& tableAlias, const QStringList& lst, ComparisonType compareType);
-    ~DialogSelectItemsFilter();
+    ~DialogSelectItemsFilter() override;
 
     QVariant selectedValue;
     QVariant selectedCode;

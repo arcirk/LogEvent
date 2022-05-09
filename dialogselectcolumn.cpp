@@ -16,19 +16,19 @@ DialogSelectColumn::DialogSelectColumn(QWidget *parent, Settings * option):
 
     model = new QStandardItemModel(this);
     model->setColumnCount(2);
-    QStandardItem * itemName = new QStandardItem("Имя");
+    auto * itemName = new QStandardItem("Имя");
     model->setHorizontalHeaderItem(0, itemName);
-    QStandardItem * itemVal = new QStandardItem("Видимость");
+    auto * itemVal = new QStandardItem("Видимость");
     model->setHorizontalHeaderItem(1, itemVal);
 
     model->setRowCount(option->get_selected_cols().size());
     int i = 0;
 
     for (auto itr = option->get_selected_cols().begin(); itr != option->get_selected_cols().end() ; ++itr) {
-        QStandardItem * item = new QStandardItem(itr.key());
+        auto * item = new QStandardItem(itr.key());
         model->setItem(i, 0, item);
         item->setEditable(false);
-        QStandardItem * itemV = new QStandardItem(itr.value());
+        auto * itemV = new QStandardItem(itr.value());
         itemV->setCheckable(true);
        if(itr.value()){
             itemV->setCheckState(Qt::CheckState::Checked);

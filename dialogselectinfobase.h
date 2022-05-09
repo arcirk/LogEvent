@@ -17,7 +17,7 @@ class DialogSelectInfobase : public QDialog
 public:
     explicit DialogSelectInfobase(QWidget *parent = nullptr);
     explicit DialogSelectInfobase(QWidget *parent, QMap<QString, Infobases*> ib);
-    ~DialogSelectInfobase();
+    ~DialogSelectInfobase() override;
     QString selectedItem;
 
 

@@ -168,7 +168,7 @@ void FilterManager::setFiltersCache(QJsonObject cache)
             if(!obj->isObject())
                 return;
             QJsonObject _obj = obj->toObject();
-            FilterItem * item = new FilterItem();
+            auto * item = new FilterItem();
             itr = _obj.find("aliasesValue");
             if(itr != _obj.end()){
                 if(itr.value().isString())
@@ -197,7 +197,6 @@ void FilterManager::setFiltersCache(QJsonObject cache)
                item->setUuid(QUuid::createUuid());
             itr = _obj.find("value");
             if(itr != _obj.end()){
-//                item->setValue(itr.value().toVariant());
                 if(itr.value().isString()){
                     if(item->key() == "date"){
                         QVariant val;

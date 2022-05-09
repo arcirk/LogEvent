@@ -77,7 +77,7 @@ void QueryBuilder::build(bool textOnly)
         setQuery(_query);
 }
 
-void QueryBuilder::addFilter(FilerData filter)
+void QueryBuilder::addFilter(const FilerData& filter)
 {
 
     m_ListFiler.append(filter);

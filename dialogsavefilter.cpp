@@ -152,7 +152,7 @@ void DialogSaveFilter::init_model()
     int i = 0;
     for (auto itr = opt.begin(); itr != opt.end(); ++itr) {
         QJsonObject curr = itr.value().toObject();
-        filter_options * _opt = new filter_options();
+        auto * _opt = new filter_options();
 
         auto item = curr.find("nameOptions");
         if(item != curr.end())
@@ -209,7 +209,7 @@ void DialogSaveFilter::add_filter_item(filter_options *_opt)
     if(currentRowLoad < 0 && currentRow == 0 && !_opt)
         currentRowLoad = currentRow;
 
-    QTableWidgetItem *pItemKey = new QTableWidgetItem(QString::number(currentRow));
+    auto *pItemKey = new QTableWidgetItem(QString::number(currentRow));
     pItemKey->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
     table->setItem(currentRow,4,pItemKey);
 
@@ -217,7 +217,7 @@ void DialogSaveFilter::add_filter_item(filter_options *_opt)
     if(_opt)
         name = _opt->name;
 
-    QTableWidgetItem *pItem = new QTableWidgetItem(name);
+    auto *pItem = new QTableWidgetItem(name);
     if(_selectedMode)
         pItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
     table->setItem(table->rowCount()-1,0,pItem);
@@ -225,12 +225,12 @@ void DialogSaveFilter::add_filter_item(filter_options *_opt)
     QString uuid = QUuid::createUuid().toString();
     if(_opt)
         uuid = _opt->uuid;
-    QTableWidgetItem *pItemUuid = new QTableWidgetItem(uuid);
+    auto *pItemUuid = new QTableWidgetItem(uuid);
     table->setItem(table->rowCount()-1,3,pItemUuid);
 
-    QWidget *pWidget = new QWidget();
-    QCheckBox *pCheckBox = new QCheckBox();
-    QHBoxLayout *pLayout = new QHBoxLayout(pWidget);
+    auto *pWidget = new QWidget();
+    auto *pCheckBox = new QCheckBox();
+    auto *pLayout = new QHBoxLayout(pWidget);
     pLayout->addWidget(pCheckBox);
     pLayout->setAlignment(Qt::AlignCenter);
     pLayout->setContentsMargins(0,0,0,0);
@@ -244,9 +244,9 @@ void DialogSaveFilter::add_filter_item(filter_options *_opt)
     pCheckBox->setObjectName("save" + QString::number(currentRow));
     pCheckBox->setEnabled(!_selectedMode);
 
-    QWidget *pWidget1 = new QWidget();
-    QCheckBox *pCheckBox1 = new QCheckBox();
-    QHBoxLayout *pLayout1 = new QHBoxLayout(pWidget1);
+    auto *pWidget1 = new QWidget();
+    auto *pCheckBox1 = new QCheckBox();
+    auto *pLayout1 = new QHBoxLayout(pWidget1);
     pLayout1->addWidget(pCheckBox1);
     pLayout1->setAlignment(Qt::AlignCenter);
     pLayout1->setContentsMargins(0,0,0,0);
@@ -283,7 +283,7 @@ void DialogSaveFilter::set_default_item()
     for (int i = 0; i < ui->tableWidget->rowCount(); i++) {
         int keyString =  ui->tableWidget->item(i, 4)->text().toInt();
         QWidget* pWidget = ui->tableWidget->cellWidget(i, 2);
-        QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("load" + QString::number(keyString));
+        auto * checkBox = pWidget->findChild<QCheckBox*>("load" + QString::number(keyString));
         if(checkBox->checkState() == Qt::CheckState::Checked)
         {
             font.setBold(true);
@@ -319,12 +319,12 @@ void DialogSaveFilter::on_btnCopy_clicked()
 
     int keyString =  ui->tableWidget->item(row, 4)->text().toInt();
 
-    filter_options *_opt = new filter_options();
+    auto *_opt = new filter_options();
     QString name = item->text() + " 1";
     _opt->name = name;
 
     QWidget* pWidget = ui->tableWidget->cellWidget(row, 1);
-    QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("save" + QString::number(keyString));
+    auto * checkBox = pWidget->findChild<QCheckBox*>("save" + QString::number(keyString));
     _opt->save = false;
 
     pWidget = ui->tableWidget->cellWidget(row, 2);
@@ -376,7 +376,7 @@ void DialogSaveFilter::onCheckBoxToggled(bool value)
             for (int i = 0; i < ui->tableWidget->rowCount(); i++) {
                 int keyString =  ui->tableWidget->item(i, 4)->text().toInt();
                 QWidget* pWidget = ui->tableWidget->cellWidget(i, 2);
-                QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("load" + QString::number(keyString));
+                auto * checkBox = pWidget->findChild<QCheckBox*>("load" + QString::number(keyString));
                 if(checkBox->checkState() == Qt::CheckState::Checked)
                 {
                     currentRowLoad = i;
@@ -388,7 +388,7 @@ void DialogSaveFilter::onCheckBoxToggled(bool value)
             for (int i = 0; i < ui->tableWidget->rowCount(); i++) {
                 int keyString =  ui->tableWidget->item(i, 4)->text().toInt();
                 QWidget* pWidget = ui->tableWidget->cellWidget(i, 2);
-                QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("load" + QString::number(keyString));
+                auto * checkBox = pWidget->findChild<QCheckBox*>("load" + QString::number(keyString));
                 if(checkBox->checkState() == Qt::CheckState::Checked)
                 {
                     if(i == currentRowLoad){

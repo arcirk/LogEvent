@@ -75,7 +75,7 @@ public:
     void getSettings();
     void saveSettings();
 
-    QString v8srvinfo_catalog() const;
+    [[nodiscard]] QString v8srvinfo_catalog() const;
     void set_v8srvinfo_catalog(const QString& val);
 
     QString v8srvinfo_logevent_catalog();

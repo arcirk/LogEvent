@@ -96,15 +96,15 @@ void DialogSqlFilter::addFilter(const QString &filter_field, const QUuid& uuid)
 
     table->setRowCount(rowCount);
 
-    QTableWidgetItem *pItemUuid = new QTableWidgetItem(uuid.toString());
+    auto *pItemUuid = new QTableWidgetItem(uuid.toString());
     table->setItem(currentRow,4,pItemUuid);
 
-    QTableWidgetItem *pItemKey = new QTableWidgetItem(QString::number(currentRow));
+    auto *pItemKey = new QTableWidgetItem(QString::number(currentRow));
     table->setItem(currentRow,5,pItemKey);
 
-    QWidget *pWidget = new QWidget();
-    QCheckBox *pCheckBox = new QCheckBox();
-    QHBoxLayout *pLayout = new QHBoxLayout(pWidget);
+    auto *pWidget = new QWidget();
+    auto *pCheckBox = new QCheckBox();
+    auto *pLayout = new QHBoxLayout(pWidget);
     pLayout->addWidget(pCheckBox);
     pLayout->setAlignment(Qt::AlignCenter);
     pLayout->setContentsMargins(0,0,0,0);
@@ -122,13 +122,13 @@ void DialogSqlFilter::addFilter(const QString &filter_field, const QUuid& uuid)
     if(filter_field == "Дата"){
         list_model->removeRows(6, 2);
     }
-    QComboBox* combo = new QComboBox();
+    auto* combo = new QComboBox();
     combo->setModel(list_model);
     combo->setFrame(false);
     table->setCellWidget(table->rowCount()-1,2,combo);
     //////////////
 
-    QWidget *pWidgetVal = new QWidget();
+    auto *pWidgetVal = new QWidget();
     if(filter_field == "Дата")
        pWidgetVal->setProperty("dataType", "date");
     else
@@ -138,10 +138,10 @@ void DialogSqlFilter::addFilter(const QString &filter_field, const QUuid& uuid)
     pWidgetVal->setProperty("isList", false);
 
 
-    QToolButton *pToolBtn = new QToolButton();
-    QHBoxLayout *pLayoutVal = new QHBoxLayout(pWidgetVal);
-    QLineEdit *pLineEdit = new QLineEdit();
-    QDateTimeEdit * pDateTime = new QDateTimeEdit(QDateTime::currentDateTime());
+    auto *pToolBtn = new QToolButton();
+    auto *pLayoutVal = new QHBoxLayout(pWidgetVal);
+    auto *pLineEdit = new QLineEdit();
+    auto * pDateTime = new QDateTimeEdit(QDateTime::currentDateTime());
 
     pToolBtn->setAutoRaise(true);
     pToolBtn->setText("...");
@@ -187,7 +187,7 @@ void DialogSqlFilter::updateManager()
 {
 
     _filterManager->filterItems().clear();
-    qDebug() << _filterManager->uuid();
+   // qDebug() << _filterManager->uuid();
 
     int rows = ui->tableWidget->rowCount();
 
@@ -196,22 +196,17 @@ void DialogSqlFilter::updateManager()
         int keyString = ui->tableWidget->item(i, 5)->text().toInt();
 
         QWidget* pWidget = ui->tableWidget->cellWidget(i, 0);
-        QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("use" + QString::number(keyString));
+        auto * checkBox = pWidget->findChild<QCheckBox*>("use" + QString::number(keyString));
 
         QWidget* pWidgetVal = ui->tableWidget->cellWidget(i, 3);
         QVariant mCode = pWidgetVal->property("listCode");
         QVariant vCode = pWidgetVal->property("code");
-        //QString dataType = pWidgetVal->property("dataType").toString();
-
-        //QVariant code;
 
         QStringList lstCode{};
         if(mCode.isValid()){
             lstCode = mCode.toStringList();
         }
-//        if(vCode.isValid()){
-//            code = vCode.toString();
-//        }
+
 
         bool isList = pWidgetVal->property("isList").toBool();
 
@@ -229,8 +224,8 @@ void DialogSqlFilter::updateManager()
         if(itr != _aliasesField.end())
             filed = itr.value();
 
-        LogEventColumn colIndex = (LogEventColumn)ColumnNames.indexOf(filed);
-        QComboBox *combo = dynamic_cast<QComboBox*>( ui->tableWidget->cellWidget(i, 2) );
+        auto colIndex = (LogEventColumn)ColumnNames.indexOf(filed);
+        auto *combo = dynamic_cast<QComboBox*>( ui->tableWidget->cellWidget(i, 2) );
         ComparisonType compareType = ComparisonType::equals;
         if(combo)
           compareType = _compareType[combo->currentText()];
@@ -242,7 +237,7 @@ void DialogSqlFilter::updateManager()
             value = vCode;
         }
 
-        QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(keyString));
+        auto *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(keyString));
 
         if(!line){
             qDebug() << "error get item control row";
@@ -271,7 +266,7 @@ void DialogSqlFilter::loadFilterItems()
         addFilter(field, itr->uuid());
 
         QWidget* pWidget = ui->tableWidget->cellWidget(row, 0);
-        QCheckBox * checkBox = pWidget->findChild<QCheckBox*>("use" + QString::number(row));
+        auto * checkBox = pWidget->findChild<QCheckBox*>("use" + QString::number(row));
         if(checkBox){
             if(itr->use())
                 checkBox->setCheckState(Qt::CheckState::Checked);
@@ -279,11 +274,11 @@ void DialogSqlFilter::loadFilterItems()
                 checkBox->setCheckState(Qt::CheckState::Unchecked);
         }
 
-        QComboBox *combo = dynamic_cast<QComboBox*>( ui->tableWidget->cellWidget(row, 2) );
+        auto *combo = dynamic_cast<QComboBox*>( ui->tableWidget->cellWidget(row, 2) );
         if(combo){
             for (auto compare = _compareType.begin(); compare != _compareType.end(); ++compare) {
                 if(compare .value()== itr->compareType()){
-                    int ind = szComparisonType.indexOf(compare.key());
+                    int ind = (int)szComparisonType.indexOf(compare.key());
                     combo->setCurrentIndex(ind);
                     break;
                 }
@@ -294,8 +289,8 @@ void DialogSqlFilter::loadFilterItems()
         QWidget* pWidgetVal = ui->tableWidget->cellWidget(row, 3);
         if(itr->value().isValid()){
 
-            QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(row));
-            QDateTimeEdit *dt = pWidgetVal->findChild<QDateTimeEdit*>("dateTime" + QString::number(row));
+            auto *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(row));
+            auto *dt = pWidgetVal->findChild<QDateTimeEdit*>("dateTime" + QString::number(row));
 
             if(itr->aliasesValue().isValid()){
                 if(itr->aliasesValue().userType() == QMetaType::QString){
@@ -329,7 +324,7 @@ void DialogSqlFilter::loadFilterItems()
 
 void DialogSqlFilter::onToolButtonToggle()
 {
-    QToolButton *button = dynamic_cast<QToolButton*>( sender() );
+    auto *button = dynamic_cast<QToolButton*>( sender() );
     QVariant vRow = button->property("row");
 
     if(vRow.isValid()){
@@ -343,7 +338,7 @@ void DialogSqlFilter::onToolButtonToggle()
 
         QWidget* pWidgetVal = ui->tableWidget->cellWidget(row, 3);
 
-        QComboBox *combo = dynamic_cast<QComboBox*>( ui->tableWidget->cellWidget(row, 2) );
+        auto *combo = dynamic_cast<QComboBox*>( ui->tableWidget->cellWidget(row, 2) );
         ComparisonType compareType = _compareType[combo->currentText()];
 
         emit selectedFormShow(compareType, pWidgetVal, field, row);
@@ -377,8 +372,8 @@ void DialogSqlFilter::onSelectedFormShow(ComparisonType type, QWidget *pWidgetVa
 
         int keyString = ui->tableWidget->item(row, 5)->text().toInt();
 
-        QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(keyString));
-        QDateTimeEdit *dt = pWidgetVal->findChild<QDateTimeEdit*>("dateTime" + QString::number(keyString));
+        auto *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(keyString));
+        auto *dt = pWidgetVal->findChild<QDateTimeEdit*>("dateTime" + QString::number(keyString));
 
         QString tableName;
 
@@ -441,9 +436,9 @@ void DialogSqlFilter::onItemComboCurrentIndexChanged(int index)
 
         int keyString = ui->tableWidget->item(row, 5)->text().toInt();
 
-        QDateTimeEdit *dt = pWidgetVal->findChild<QDateTimeEdit*>("dateTime" + QString::number(keyString));
-        QToolButton *btn = pWidgetVal->findChild<QToolButton*>("btn" + QString::number(keyString));
-        QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(keyString));
+        auto *dt = pWidgetVal->findChild<QDateTimeEdit*>("dateTime" + QString::number(keyString));
+        auto *btn = pWidgetVal->findChild<QToolButton*>("btn" + QString::number(keyString));
+        auto *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(keyString));
 
         QStringList lst = pWidgetVal->property("list").toStringList();
         QStringList lstCode = pWidgetVal->property("listCode").toStringList();
@@ -485,10 +480,10 @@ void DialogSqlFilter::onItemComboCurrentIndexChanged(int index)
                         }
                     }
                 }else{
-                    if(lst.size() > 0){
+                    if(!lst.empty()){
                         line->setText(lst[0]);
                     }
-                    if(lstCode.size() > 0){
+                    if(!lstCode.empty()){
                         pWidgetVal->setProperty("code", lstCode[0]);
                         pWidgetVal->setProperty("listCode", lstCode);
                     }
@@ -556,14 +551,14 @@ void DialogSqlFilter::onResetFilter()
 
 void DialogSqlFilter::onDateTimeChanged(const QDateTime &dateTime)
 {
-    QDateTimeEdit *dt = dynamic_cast<QDateTimeEdit*>( sender() );
+    auto *dt = dynamic_cast<QDateTimeEdit*>( sender() );
     QVariant vRow = dt->property("row");
     if(vRow.isValid()){
         int row = vRow.toInt();
         QWidget* pWidgetVal = ui->tableWidget->cellWidget(row, 3);
         if(pWidgetVal){
             pWidgetVal->setProperty("code", dateTime);
-            QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(row));
+            auto *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(row));
             if(line)
                 line->setText(dateTime.toString());
         }
