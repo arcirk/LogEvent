@@ -112,6 +112,8 @@ QJsonObject FilterManager::toJsonObject()
             item.insert("value", itr->value().toInt());
         }else if(itr->value().userType() == QMetaType::Bool){
             item.insert("value", itr->value().toBool());
+        }else if(itr->value().userType() == QMetaType::QDateTime){
+            item.insert("value", itr->value().toDateTime().toString());
         }
         if(itr->aliasesValue().userType() == QMetaType::QStringList){
             QStringList val = itr->aliasesValue().toStringList();
@@ -126,6 +128,8 @@ QJsonObject FilterManager::toJsonObject()
             item.insert("aliasesValue", itr->aliasesValue().toInt());
         }else if(itr->aliasesValue().userType() == QMetaType::Bool){
             item.insert("aliasesValue", itr->aliasesValue().toBool());
+        }else if(itr->aliasesValue().userType() == QMetaType::QDateTime){
+            item.insert("aliasesValue", itr->aliasesValue().toDateTime().toString());
         }
         arr.append(item);
     }
@@ -193,8 +197,23 @@ void FilterManager::setFiltersCache(QJsonObject cache)
                item->setUuid(QUuid::createUuid());
             itr = _obj.find("value");
             if(itr != _obj.end()){
-                if(itr.value().isString())
-                    item->setValue(itr.value().toString());
+//                item->setValue(itr.value().toVariant());
+                if(itr.value().isString()){
+                    if(item->key() == "date"){
+                        QVariant val;
+                        try {
+                            val = QDateTime::fromString(itr.value().toString());
+                        }  catch (...) {
+                            val = itr.value().toString();
+                        }
+                        item->setValue(val);
+                    }else
+                        item->setValue(itr.value().toString());
+                }
+                else if(itr.value().isBool())
+                    item->setValue(itr.value().toBool());
+                else if(itr.value().isDouble())
+                    item->setValue(itr.value().toDouble());
                 else if (itr.value().isArray()){
                     QStringList list;
                     for(auto l : itr.value().toArray()){

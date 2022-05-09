@@ -150,6 +150,7 @@ void DialogSqlFilter::addFilter(const QString &filter_field, const QUuid& uuid)
 
     pDateTime->setObjectName("dateTime" + QString::number(currentRow));
     pDateTime->setFrame(false);
+    pDateTime->setProperty("row", currentRow);
     pDateTime->setCalendarPopup(true);
 
     pLineEdit->setObjectName("lineEdit" + QString::number(currentRow));
@@ -160,6 +161,7 @@ void DialogSqlFilter::addFilter(const QString &filter_field, const QUuid& uuid)
         pLineEdit->setVisible(false);
         pLineEdit->setEnabled(false);
         pToolBtn->setVisible(false);
+        pWidgetVal->setProperty("code", pDateTime->dateTime());
     }
     else
         pDateTime->setVisible(false);
@@ -174,7 +176,7 @@ void DialogSqlFilter::addFilter(const QString &filter_field, const QUuid& uuid)
     table->resizeColumnsToContents();
 
     connect(pToolBtn, SIGNAL(clicked()), this, SLOT(onToolButtonToggle()));
-
+    connect(pDateTime, SIGNAL(dateTimeChanged(QDateTime)), this, SLOT(onDateTimeChanged(QDateTime)));
     connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged),
         [=](int index){
         emit itemComboCurrentIndexChanged(index);
@@ -199,15 +201,17 @@ void DialogSqlFilter::updateManager()
         QWidget* pWidgetVal = ui->tableWidget->cellWidget(i, 3);
         QVariant mCode = pWidgetVal->property("listCode");
         QVariant vCode = pWidgetVal->property("code");
-        QString code;
+        //QString dataType = pWidgetVal->property("dataType").toString();
+
+        //QVariant code;
 
         QStringList lstCode{};
         if(mCode.isValid()){
             lstCode = mCode.toStringList();
         }
-        if(vCode.isValid()){
-            code = vCode.toString();
-        }
+//        if(vCode.isValid()){
+//            code = vCode.toString();
+//        }
 
         bool isList = pWidgetVal->property("isList").toBool();
 
@@ -235,7 +239,7 @@ void DialogSqlFilter::updateManager()
         if(isList)
             value = lstCode;
         else{
-            value = code;
+            value = vCode;
         }
 
         QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(keyString));
@@ -291,10 +295,12 @@ void DialogSqlFilter::loadFilterItems()
         if(itr->value().isValid()){
 
             QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(row));
+            QDateTimeEdit *dt = pWidgetVal->findChild<QDateTimeEdit*>("dateTime" + QString::number(row));
 
             if(itr->aliasesValue().isValid()){
                 if(itr->aliasesValue().userType() == QMetaType::QString){
-                    line->setText(itr->aliasesValue().toString());
+                    if(line)
+                        line->setText(itr->aliasesValue().toString());
                     QStringList list = itr->aliasesValue().toString().split(",");
                     pWidgetVal->setProperty("list", list);
                 }
@@ -306,9 +312,14 @@ void DialogSqlFilter::loadFilterItems()
             }else if(itr->value().userType() == QMetaType::QStringList){
                 pWidgetVal->setProperty("listCode", itr->value().toStringList());
                 pWidgetVal->setProperty("isList", true);
-                line->setEnabled(false);
+                if(line)
+                    line->setEnabled(false);
+            }else if(itr->value().userType() == QMetaType::QDateTime){
+                pWidgetVal->setProperty("code", itr->value().toDateTime());
+                pWidgetVal->setProperty("isList", false);
+                if(dt)
+                   dt->setDateTime(itr->value().toDateTime());
             }
-
         }
 
         row++;
@@ -541,5 +552,21 @@ void DialogSqlFilter::onResetFilter()
 {
     loadFilterItems();
     setWindowTitle(QString("Настройка отборов (%1)").arg(_filterManager->nameOptions()));
+}
+
+void DialogSqlFilter::onDateTimeChanged(const QDateTime &dateTime)
+{
+    QDateTimeEdit *dt = dynamic_cast<QDateTimeEdit*>( sender() );
+    QVariant vRow = dt->property("row");
+    if(vRow.isValid()){
+        int row = vRow.toInt();
+        QWidget* pWidgetVal = ui->tableWidget->cellWidget(row, 3);
+        if(pWidgetVal){
+            pWidgetVal->setProperty("code", dateTime);
+            QLineEdit *line = pWidgetVal->findChild<QLineEdit*>("lineEdit" + QString::number(row));
+            if(line)
+                line->setText(dateTime.toString());
+        }
+    }
 }
 

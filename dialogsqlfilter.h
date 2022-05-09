@@ -46,6 +46,8 @@ private slots:
 
     void onResetFilter();
 
+    void onDateTimeChanged(const QDateTime &dateTime);
+
 private:
     Ui::DialogSqlFilter *ui;    
     FilterManager * _filterManager;

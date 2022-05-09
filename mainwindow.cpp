@@ -178,6 +178,7 @@ void MainWindow::on_toolBtnUpdate_clicked()
             ui->tableView->resizeColumnToContents(i);
     }
 
+    qDebug() << qPrintable(mainModel->toString());
 }
 
 void MainWindow::on_mnuDbConnect_triggered()

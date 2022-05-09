@@ -61,6 +61,10 @@ void QueryBuilder::build(bool textOnly)
             _where.append(")");
 
         }
+        else if(itr->value.userType() == QMetaType::QDateTime) {
+            qint64 val = itr->value.toDateTime().toSecsSinceEpoch() + 18000;
+            _where.append(QString::number(((qint64)62135578800 + val) * (qint64)10000));
+        }
     }
 
     if(_isLimit){
