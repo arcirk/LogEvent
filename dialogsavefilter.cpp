@@ -115,7 +115,7 @@ void DialogSaveFilter::init_model()
     table->setColumnCount(5);
     table->setHorizontalHeaderItem(0, new QTableWidgetItem("Наименование"));
     table->setHorizontalHeaderItem(1, new QTableWidgetItem("Сохранять"));
-    table->setHorizontalHeaderItem(2, new QTableWidgetItem("Востанавливать"));
+    table->setHorizontalHeaderItem(2, new QTableWidgetItem("Восстанавливать"));
     table->setHorizontalHeaderItem(3, new QTableWidgetItem("Идентификатор"));
     table->setHorizontalHeaderItem(4, new QTableWidgetItem("КлючСтроки"));
     table->setColumnHidden(3, true);
